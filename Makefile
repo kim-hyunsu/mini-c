@@ -1,5 +1,5 @@
-all: src/main.cpp src/prompt.cpp src/parser.cpp
-	g++ src/main.cpp src/prompt.cpp src/parser.cpp -o bin/minic
+all: src/*.cpp
+	g++ -Iinclude src/*.cpp -o bin/minic
 	./bin/minic
 
 clean:
