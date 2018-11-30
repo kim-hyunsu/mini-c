@@ -23,8 +23,10 @@ int main(void)
     int argc = argv.size();
     if (argv[0].compare("next") == 0)
     {
-      if (invalidArgNum(argc, 2))
+      if (invalidArgNum(argc, 2) && invalidArgNum(argc, 1))
         continue;
+      if (argc == 1)
+        argv[1] = "1";
       int lines = 0;
       try
       {
@@ -32,7 +34,7 @@ int main(void)
       }
       catch (invalid_argument &e)
       {
-        cout << "NextError: Invalid Argument" << endl;
+        cout << "Incorrect command usage : try 'next [lines]'" << endl;
         continue;
       }
       bool done = next(lines);
