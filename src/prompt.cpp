@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "TypeObject.hpp"
 using namespace std;
 
 vector<string> parsePrompt(string command)
@@ -17,4 +18,14 @@ vector<string> parsePrompt(string command)
   }
   argv.push_back(command);
   return argv;
+}
+
+struct NameInfo parseVariable(string variableName)
+{
+  struct NameInfo nameInfo;
+  string asterRisk = "*";
+  string leftBracket = "[";
+  string rightBracket = "]";
+  // TODO
+  return nameInfo;
 }

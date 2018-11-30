@@ -1,6 +1,14 @@
 #include <string>
 #include <vector>
+#include "TypeObject.hpp"
 
 using namespace std;
 
-vector<string> parsePrompt(string command);
+struct NameInfo
+{
+  TypeObject type;
+  string name;
+}
+
+vector<string>
+parsePrompt(string command);
