@@ -1,6 +1,7 @@
 #include <string>
 
 #include "TypeObject.hpp"
+#include "HistoryTable.hpp"
 
 class SymbolTableEntry {
 private:
@@ -9,7 +10,7 @@ private:
   TypeObject variableType;
   int level;
   void *variableAddress;
-  //  history
+  HistoryTable history;
 
 public:
   SymbolTableEntry(std::string name, TypeObject vType, int lv, void *address);
