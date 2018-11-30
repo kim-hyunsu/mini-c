@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <iostream>
 using namespace std;
 
 vector<string> parsePrompt(string command)
@@ -7,7 +8,7 @@ vector<string> parsePrompt(string command)
   string delimiter = " ";
   size_t pos = 0;
   string token;
-  vector<string> argv(0);
+  vector<string> argv;
   while ((pos = command.find(delimiter)) != string::npos)
   {
     token = command.substr(0, pos);
