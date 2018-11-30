@@ -8,4 +8,4 @@ public:
     Word(char *s, int tag): Token(tag) { lexeme = s; }
 };
 
-Word t("true", T), f("false", F);
+Word t("true", T), f("false", F), inc("++", INC), dec("--", DEC);
