@@ -11,7 +11,7 @@ int main(void)
   vector<string> argv;
   while (true)
   {
-    cout << ">>";
+    cout << ">> ";
     cin.getline(input, 20);
     string command(input);
     argv = parsePrompt(command);
