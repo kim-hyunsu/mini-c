@@ -2,12 +2,12 @@
 #include <vector>
 
 enum Type {
-  FUNCTION = 0,
-  VOID,
-  INT,
-  FLOAT,
-  ARRAY,
-  POINTER
+  TYPE_FUNCTION = 0,
+  TYPE_VOID,
+  TYPE_INT,
+  TYPE_FLOAT,
+  TYPE_ARRAY,
+  TYPE_POINTER
 };
 
 class TypeObject {
