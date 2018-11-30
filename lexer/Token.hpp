@@ -4,6 +4,5 @@ class Token
 {
 public:
     int tag;
-    Token(int t);
-    char *toString();
-}
+    Token(int t) { tag = t; }
+};
