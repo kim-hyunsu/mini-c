@@ -15,6 +15,8 @@ Lexer::Lexer()
     reserve(Word("for", FOR));
     reserve(Word((const Word &)wordTrue));
     reserve(Word((const Word &)wordFalse));
+    
+    reserve(Word("int", 3888));
     /*
     reserve(TYPE.INT);
     reserve(TYPE.BOOL);
@@ -40,6 +42,7 @@ Token Lexer::scan()
         else if(peek == '\n') line = line + 1;
         else break;
     }
+
     switch(peek) {
     case '+':
         if(readch('+'))
@@ -52,6 +55,7 @@ Token Lexer::scan()
         else
             return Token('-');
     }
+    
     if('0' <= peek && peek <= '9')
     {
         int v = 0;
@@ -86,10 +90,18 @@ Token Lexer::scan()
             str.push_back(peek);
             readch();
         } while(isalpha(peek) || isdigit(peek) || peek == '_');
+               
         char *s = (char *)str.c_str();
+
         try
         {
-            Word w = words.find(s)->second;
+
+            auto f = words.find(s);
+
+            if (f == words.end())
+                throw out_of_range("out of range");
+
+            Word w = (*f).second;
             //Word w = words[s];
             return w;
         }

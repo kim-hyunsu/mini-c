@@ -11,11 +11,12 @@ class Lexer
 {
 public:
     char peek = ' ';
-    unordered_map<char *, Word> words;
+    unordered_map<std::string, Word> words;
+    //unordered_map<char *, Word> words;
     ifstream input;
-    void reserve(Word w) { words.insert({w.lexeme, w}); }
+    void reserve(Word w) { words.insert({w.lexeme, Word(w)}); }
     Lexer();
-    void readch() { peek = input.peek(); }
+    void readch() { peek = input.peek(); input.ignore(); }
     bool readch(char c);
     Token scan();
 };

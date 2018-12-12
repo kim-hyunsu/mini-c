@@ -7,8 +7,10 @@
 class Word: public Token
 {
 public:
-    char *lexeme = "";
-    Word(char *s, int tag): Token(tag) { lexeme = s; };
+    std::string lexeme = std::string("");
+    //char *lexeme = "";
+    Word(std::string s, int tag) : Token(tag), lexeme(s) {};
+    //Word(char *s, int tag): Token(tag) { lexeme = s; };
     ~Word() {};
 };
 
