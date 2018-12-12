@@ -32,4 +32,25 @@ enum Tag
     FUNC
 };
 
+inline int tokenType(int tag) {
+    switch (tag) {
+    case NUM:
+        return NUM;
+    case REAL:
+        return REAL;
+    case INC:
+    case DEC:
+    case BASIC:
+    case IF:
+    case ELSE:
+    case FOR:
+    case TEMP:
+    case ID:
+    case FUNC:
+        return 0;
+    default:
+        return 1;
+    }
+};
+
 #endif

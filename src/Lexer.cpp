@@ -16,7 +16,6 @@ Lexer::Lexer()
     reserve(Word((const Word &)wordTrue));
     reserve(Word((const Word &)wordFalse));
     
-    reserve(Word("int", 3888));
     /*
     reserve(TYPE.INT);
     reserve(TYPE.BOOL);
@@ -45,13 +44,17 @@ Token Lexer::scan()
 
     switch(peek) {
     case '+':
-        if(readch('+'))
+        if(readch('+')) {
+            this->wordData = wordInc.lexeme;
             return Word(wordInc.lexeme, wordInc.tag);
+        }
         else
             return Token('+');
     case '-':
-        if(readch('-'))
+        if(readch('-')) {
+            this->wordData = wordDec.lexeme;
             return Word(wordDec.lexeme, wordDec.tag);
+        }
         else
             return Token('-');
     }
@@ -64,8 +67,10 @@ Token Lexer::scan()
             v = 10 * v + peek - '0';
             readch();
         } while('0' <= peek && peek <= '9');
-        if(peek != '.')
+        if(peek != '.') {
+            this->numData = v;
             return Num(v);
+        }
 
         double x = v, d = 10;
 
@@ -80,6 +85,7 @@ Token Lexer::scan()
             d *= 10;
         }
 
+        this->realData = x;
         return Real(x);
     }
     if(isalpha(peek) || peek == '_')
@@ -101,12 +107,14 @@ Token Lexer::scan()
             if (f == words.end())
                 throw out_of_range("out of range");
 
-            Word w = (*f).second;
+            this->wordData = f->first;
+            Word w = f->second;
             //Word w = words[s];
             return w;
         }
         catch(const out_of_range& oor)
         {
+            this->wordData = s;
             Word w = Word(s, ID);
             words.insert({s, w});
             return w;
