@@ -15,11 +15,13 @@ Lexer::Lexer()
     reserve(Word("for", FOR));
     reserve(Word((const Word &)wordTrue));
     reserve(Word((const Word &)wordFalse));
+    /*
     reserve(TYPE.INT);
     reserve(TYPE.BOOL);
     reserve(TYPE.CHAR);
     reserve(TYPE.FLOAT);
     reserve(TYPE.DOUBLE);
+    */
 }
 
 bool Lexer::readch(char c)
@@ -87,7 +89,8 @@ Token Lexer::scan()
         char *s = (char *)str.c_str();
         try
         {
-            Word w = words[s];
+            Word w = words.find(s)->second;
+            //Word w = words[s];
             return w;
         }
         catch(const out_of_range& oor)

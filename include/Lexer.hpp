@@ -18,4 +18,4 @@ public:
     void readch() { peek = input.peek(); }
     bool readch(char c);
     Token scan();
-}
+};

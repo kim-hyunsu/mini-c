@@ -1,3 +1,6 @@
+#ifndef TOKEN_H
+#define TOKEN_H
+
 class Token
 {
 public:
@@ -5,3 +8,5 @@ public:
     Token(int t) { tag = t; }
     ~Token() {};
 };
+
+#endif

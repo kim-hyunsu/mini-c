@@ -1,3 +1,6 @@
+#ifndef TAG_H
+#define TAG_H
+
 enum Tag
 {
     GREATER = 256,
@@ -27,4 +30,6 @@ enum Tag
     ID,
     COMMA,
     FUNC
-}
+};
+
+#endif
