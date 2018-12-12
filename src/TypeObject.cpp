@@ -30,7 +30,19 @@ bool isSameType(TypeObject *a, TypeObject *b)
       return isSameType(a->baseType, b->baseType) && (a->arraySize == b->arraySize);
       break;
     case TYPE_FUNCTION:
-      return isSameType(a->baseType, b->baseType) && (a->parameterTypes == b->parameterTypes) && isSameType(a->returnType, b->returnType);
+    {
+      bool same = false;
+      if (isSameType(a->returnType, b->returnType) && a->parameterTypes.size() == b->parameterTypes.size()) {
+        int i;
+        for (i = 0; i < a->parameterTypes.size(); i++) {
+          if (isSameType(a->parameterTypes[i], b->parameterTypes[i]) == false)
+            break;
+        }
+        if (i == a->parameterTypes.size())
+          same = true;
+      }
+      return same;
+    }
     }
   }
 }
