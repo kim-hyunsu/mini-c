@@ -5,7 +5,14 @@ SymbolTableEntry::SymbolTableEntry(std::string name, TypeObject vType, int lv, v
 {
 }
 
-bool SymbolTableEntry::checkName(std::string str)
-{
+int SymbolTableEntry::getLevel() {
+  return this->level;
+}
+
+int SymbolTableEntry::getProcedure() {
+  return this->procedure;
+}
+
+bool SymbolTableEntry::checkName(std::string str) {
   return this->name == str;
 }

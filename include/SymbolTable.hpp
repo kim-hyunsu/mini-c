@@ -6,6 +6,7 @@
 class SymbolTable {
 private:
   int level;
+  int procedure;
   std::vector<SymbolTableEntry> table;
 
 public:
@@ -14,5 +15,8 @@ public:
   int lookup(std::string name);
   void addNewSymbol(std::string name, TypeObject vType, void *address);
   void newLevel();
-  //void deleteLevel();
+  void deleteLevel();
+  void newProcedure();
+  void deleteProcedure();
+  
 };
