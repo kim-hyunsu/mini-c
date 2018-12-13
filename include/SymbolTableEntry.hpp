@@ -14,7 +14,7 @@ private:
   HistoryTable history;
 
 public:
-  SymbolTableEntry(std::string name, TypeObject vType, int lv, void *address);
+  SymbolTableEntry(std::string name, TypeObject vType, int lv, int proc, void *address);
   int getLevel();
   int getProcedure();
   bool checkName(std::string str);

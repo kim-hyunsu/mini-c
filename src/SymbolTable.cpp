@@ -31,7 +31,7 @@ int SymbolTable::lookup(std::string name) {
 
 void SymbolTable::addNewSymbol(std::string name, TypeObject vType, void *address)
 {
-  SymbolTableEntry entry = SymbolTableEntry(name, vType, this->currentLevel(), address);
+  SymbolTableEntry entry = SymbolTableEntry(name, vType, this->level, this->procedure, address);
   this->table.push_back(entry);
 }
 

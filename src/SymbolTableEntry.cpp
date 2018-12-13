@@ -1,7 +1,7 @@
 #include "SymbolTableEntry.hpp"
 
-SymbolTableEntry::SymbolTableEntry(std::string name, TypeObject vType, int lv, void *address)
-    : name(name), variableType(vType), level(lv), variableAddress(address)
+SymbolTableEntry::SymbolTableEntry(std::string name, TypeObject vType, int lv, int proc, void *address)
+    : name(name), variableType(vType), level(lv), procedure(proc), variableAddress(address)
 {
 }
 
