@@ -8,18 +8,18 @@
 %%
 
 start_symbol
-  : procedure start_symbol 
-  | procedure
+  : procedure start_symbol
+  |
   ;
 
 procedure
-  : return_type_declarator ID '(' parameters ')' '{' statements '}'
-  | ID '(' parameters ')' '{' statements '}'
+  : return_type_declarator ID '(' parameters ')' block   { std::cout << " procedure complete " << std::endl;}
+  | ID '(' parameters ')' block      
   ;
 
 type
-  : INT
-  | FLOAT
+  : INT     { std::cout << "int" << std::endl;}
+  | FLOAT   { std::cout << "float" << std::endl;}
   ;
 
 return_type_declarator
@@ -28,10 +28,14 @@ return_type_declarator
   ;
 
 parameters
-  : parameter parameters
-  | parameter
+  : parameters_list
   | VOID
   |
+  ;
+
+parameters_list
+  : parameter ',' parameters_list { std::cout << "params : more than 2" << std::endl;}
+  | parameter { std::cout << "1 parameter" << std::endl;}
   ;
 
 parameter
@@ -39,17 +43,28 @@ parameter
   ;
 
 ID_type_declaration
-  : type ID 
-  | ID array_declaration
+  : type ID
+  | type ID array_declaration
   ;
 
 array_declaration
   : '[' ']'
   | '[' NUM ']'
   ;
-  
+
+block
+  : '{' statements '}'
 statements 
-  :
+  : statement statements
+  |
+  ;
+
+statement
+  : expression ';'
+  ;
+
+expression
+  : 
   ;
 
 %%
@@ -59,7 +74,7 @@ statements
 
 extern char yytext[];
 
-void yyerror(char *s)
+void yyerror(std::string s)
 {
   std::cout << s << std::endl;
 }

@@ -18,6 +18,7 @@ static bool invalidArgNum(int argc, int validNum);
 
 Parser *parser;
 
+extern int yylval;
 int yyparse(void);
 
 /*
@@ -123,6 +124,9 @@ int main(void) {
 }
 
 int yylex() {
+  if (parser->cursor == parser->tokens.size()) {
+    return -1;
+  }
   auto t = parser->tokens[parser->cursor];
   parser->cursor++;
   return t.second.tag;
