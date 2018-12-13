@@ -2,10 +2,12 @@
 #include <iostream>
 #include <vector>
 #include <stdexcept>
+
 #include "prompt.hpp"
 #include "Lexer.hpp"
 #include "SymbolTable.hpp"
 #include "CallStack.hpp"
+#include "parser.hpp"
 
 using namespace std;
 
@@ -13,6 +15,11 @@ static bool next(int lines);
 static string print(string var);
 static vector<string> trace(string var);
 static bool invalidArgNum(int argc, int validNum);
+
+Parser *parser;
+
+int yyparse(void);
+
 /*
 int main(void)
 {
@@ -105,33 +112,18 @@ static bool invalidArgNum(int argc, int validNum)
 }
 */
 
-// scanner test
 int main(void) {
-  Lexer lexer = Lexer();
+  parser = new Parser("./test2.txt");
   SymbolTable symbolTable = SymbolTable();
   CallStack callStack = CallStack();
-  std::ifstream fs;
-  fs.open("./test.txt", std::ios_base::openmode::_S_in);
-  lexer.input.swap(fs);
-  for (int i = 0; i < 1000; i++) {
-    Token t = lexer.scan();
-    if (t.tag == -1) {
-      break;
-    }
-    if (t.tag < 256) {
-      std::cout << "|" << t.tag << ":" << (char)t.tag << " ";
-    }
-    else if (tokenType(t.tag) == NUM) {
-      std::cout << "|" << t.tag << ":" << lexer.numData << " ";
-    } 
-    else if (tokenType(t.tag) == REAL) {
-      std::cout << "|" << t.tag << ":" << lexer.realData << " ";
-    } 
-    else if (tokenType(t.tag) == 0) {
-      std::cout << "|" << t.tag << ":" << lexer.wordData << " ";
-    }
-    else if (tokenType(t.tag) == 1) {
-      std::cout << "|" << t.tag << " ";
-    }
-  }
+
+  parser->tokenize();
+
+  yyparse();
+}
+
+int yylex() {
+  auto t = parser->tokens[parser->cursor];
+  parser->cursor++;
+  return t.second.tag;
 }

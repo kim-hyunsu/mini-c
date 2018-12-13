@@ -1,3 +1,6 @@
+#ifndef TYPEOBJECT_H
+#define TYPEOBJECT_H
+
 #include <string>
 #include <vector>
 
@@ -32,3 +35,5 @@ public:
   static TypeObject* buildFunction(std::vector<TypeObject*> &parameterTypes, TypeObject* returnType);
   //Type stringToType(std::string);
 };
+
+#endif

@@ -16,6 +16,8 @@ Lexer::Lexer()
     reserve(Word((const Word &)wordTrue));
     reserve(Word((const Word &)wordFalse));
     
+    reserve(Word("int", INT));
+    reserve(Word("float", FLOAT));
     /*
     reserve(TYPE.INT);
     reserve(TYPE.BOOL);

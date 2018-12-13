@@ -1,6 +1,9 @@
 #ifndef TAG_H
 #define TAG_H
 
+#include "../y.tab.h"
+
+/*
 enum Tag
 {
     GREATER = 256,
@@ -29,10 +32,18 @@ enum Tag
     REAL,
     ID,
     COMMA,
-    FUNC
+    FUNC,
+    
+    INT,
+    FLOAT,
+    VOID
 };
+*/
 
 inline int tokenType(int tag) {
+    if (tag < 256) {
+        return -1;
+    }
     switch (tag) {
     case NUM:
         return NUM;
@@ -47,6 +58,9 @@ inline int tokenType(int tag) {
     case TEMP:
     case ID:
     case FUNC:
+    case INT:
+    case FLOAT:
+    case VOID:
         return 0;
     default:
         return 1;

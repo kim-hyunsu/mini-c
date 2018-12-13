@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 
+int yylex();
+
 using namespace std;
 
 static int line = 1;
