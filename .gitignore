@@ -1,2 +1,4 @@
 .vscode
 bin/*
+*.tab.c
+*.tab.h
