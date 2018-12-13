@@ -3,7 +3,8 @@
 #include "TypeObject.hpp"
 #include "HistoryTable.hpp"
 
-class SymbolTableEntry {
+class SymbolTableEntry
+{
 private:
   //int index;
   std::string name;
@@ -18,4 +19,6 @@ public:
   int getLevel();
   int getProcedure();
   bool checkName(std::string str);
+  std::string getValue();
+  std::vector<std::string> getHistory(std::string name);
 };

@@ -3,7 +3,8 @@
 
 #include "SymbolTableEntry.hpp"
 
-class SymbolTable {
+class SymbolTable
+{
 private:
   int level;
   int procedure;
@@ -18,5 +19,5 @@ public:
   void deleteLevel();
   void newProcedure();
   void deleteProcedure();
-  
+  SymbolTableEntry get(int index);
 };

@@ -1,3 +1,11 @@
+%{
+#include "Tag.hpp"
+#include "Lexer.hpp"
+#include "parser.hpp"
+
+void yyerror(std::string s);
+int yylex();
+%}
 %token GREATER LESS T F ADD SUB MUL DIV MOD MINUS ASSIGN
 %token POINTER ARRAY ADDR INC DEC BASIC IF ELSE FOR TEMP
 %token INDEX NUM REAL ID COMMA FUNC

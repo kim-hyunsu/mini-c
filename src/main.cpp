@@ -5,71 +5,76 @@
 
 #include "prompt.hpp"
 #include "Lexer.hpp"
-#include "SymbolTable.hpp"
-#include "CallStack.hpp"
 #include "parser.hpp"
+#include "Runtime.hpp"
 
 using namespace std;
 
-static bool next(int lines);
-static string print(string var);
-static vector<string> trace(string var);
 static bool invalidArgNum(int argc, int validNum);
 
 Parser *parser;
-
 extern int yylval;
 int yyparse(void);
 
-/*
-int main(void)
+int main(int argc, char *argv[])
 {
-  vector<string> argv;
+  string filename = argv[1];
+  parser = new Parser(filename);
+  // SymbolTable symbolTable = SymbolTable();
+  // CallStack callStack = CallStack();
+  // scanning
+  parser->tokenize();
+  // parsing
+  yyparse();
+  // running
+  Runtime *run = new Runtime(parser);
+  // prompt
+  vector<string> arglist;
   while (true)
   {
     string command;
     cout << ">> ";
     getline(cin, command);
-    argv = parsePrompt(command);
-    int argc = argv.size();
-    if (argv[0].compare("next") == 0)
+    arglist = parsePrompt(command);
+    int argNum = arglist.size();
+    if (arglist[0].compare("next") == 0)
     {
-      if (invalidArgNum(argc, 2) && invalidArgNum(argc, 1))
+      if (invalidArgNum(argNum, 2) && invalidArgNum(argNum, 1))
         continue;
-      if (argc == 1)
-        argv[1] = "1";
+      if (argNum == 1)
+        arglist[1] = "1";
       int lines = 0;
       try
       {
-        lines = stoi(argv[1]);
+        lines = stoi(arglist[1]);
       }
       catch (invalid_argument &e)
       {
         cout << "Incorrect command usage : try 'next [lines]'" << endl;
         continue;
       }
-      bool done = next(lines);
+      bool done = run->next(lines);
       if (done)
         cout << "End of Program" << endl;
     }
-    else if (argv[0].compare("print") == 0)
+    else if (arglist[0].compare("print") == 0)
     {
-      if (invalidArgNum(argc, 2))
+      if (invalidArgNum(argNum, 2))
         continue;
-      string result = print(argv[1]);
+      string result = run->print(arglist[1]);
       cout << result << endl;
     }
-    else if (argv[0].compare("trace") == 0)
+    else if (arglist[0].compare("trace") == 0)
     {
-      if (invalidArgNum(argc, 2))
+      if (invalidArgNum(argNum, 2))
         continue;
-      vector<string> results = trace(argv[1]);
+      vector<string> results = run->trace(arglist[1]);
       for (auto result : results)
       {
         cout << result << endl;
       }
     }
-    else if (argv[0].compare("exit") == 0 || argv[0] == "quit")
+    else if (arglist[0].compare("exit") == 0 || arglist[0] == "quit")
     {
       break;
     }
@@ -81,25 +86,15 @@ int main(void)
   return 0;
 }
 
-static bool next(int lines)
+int yylex()
 {
-  bool end = false;
-  // TODO
-  return end;
-}
-
-static string print(string var)
-{
-  string value;
-  // TODO
-  return value;
-}
-
-static vector<string> trace(string var)
-{
-  vector<string> history;
-  // TODO
-  return history;
+  if (parser->cursor == parser->tokens.size())
+  {
+    return -1;
+  }
+  auto t = parser->tokens[parser->cursor];
+  parser->cursor++;
+  return t.second.tag;
 }
 
 static bool invalidArgNum(int argc, int validNum)
@@ -110,24 +105,4 @@ static bool invalidArgNum(int argc, int validNum)
     return true;
   }
   return false;
-}
-*/
-
-int main(void) {
-  parser = new Parser("./test2.txt");
-  SymbolTable symbolTable = SymbolTable();
-  CallStack callStack = CallStack();
-
-  parser->tokenize();
-
-  yyparse();
-}
-
-int yylex() {
-  if (parser->cursor == parser->tokens.size()) {
-    return -1;
-  }
-  auto t = parser->tokens[parser->cursor];
-  parser->cursor++;
-  return t.second.tag;
 }
