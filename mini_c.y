@@ -8,13 +8,13 @@
 %%
 
 start_symbol
-  : procedure start_symbol  { std::cout << "multiple procedure" << std::endl;}
-  | procedure               { std::cout << "1 procedure" << std::endl;}
+  : procedure start_symbol
+  |
   ;
 
 procedure
-  : return_type_declarator ID '(' parameters ')' '{' statements '}'   { std::cout << "end of procedure : " << std::endl;}
-  | ID '(' parameters ')' '{' statements '}'          
+  : return_type_declarator ID '(' parameters ')' block   { std::cout << " procedure complete " << std::endl;}
+  | ID '(' parameters ')' block      
   ;
 
 type
@@ -52,6 +52,8 @@ array_declaration
   | '[' NUM ']'
   ;
 
+block
+  : '{' statements '}'
 statements 
   : statement statements
   |
