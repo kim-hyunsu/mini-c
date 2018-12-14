@@ -11,6 +11,7 @@
 class ParseTree {
 public:
   std::string name;
+  int lineNumber;
   int tag;
   int numData;
   double realData;

@@ -10,8 +10,6 @@ int yylex();
 
 using namespace std;
 
-static int line = 1;
-
 class Lexer
 {
 public:
@@ -20,10 +18,11 @@ public:
     //unordered_map<char *, Word> words;
     ifstream input;
 
+    int currentLineNumber;
+
     std::string wordData;
     double realData;
     int numData;
-
 
     void reserve(Word w) { words.insert({w.lexeme, Word(w)}); }
     Lexer();
