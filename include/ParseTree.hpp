@@ -54,10 +54,6 @@ public:
       childPtr->nextSibling = nullptr;
   }
   void printParseTree(int l);
-  bool getBoolean();
-  int getInteger();
-  double getReal();
-  TypeObject getType();
 };
 
 #define YYSTYPE ParseTree *
