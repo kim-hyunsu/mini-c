@@ -1,0 +1,13 @@
+void foo (int a, int c, int ad) {
+  int c;
+  float d;
+}
+
+int main ( ) {
+  float b[35] = 3;
+  int a = 3 * 5 * 7 - 135.7;
+  c = 3;
+  d = e++;
+  d[123];
+  a[3] = b[3];
+}

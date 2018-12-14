@@ -18,6 +18,10 @@ Lexer::Lexer()
     
     reserve(Word("int", INT));
     reserve(Word("float", FLOAT));
+    reserve(Word("void", VOID));
+    
+    reserve(Word("return", RETURN));
+    
     /*
     reserve(TYPE.INT);
     reserve(TYPE.BOOL);
