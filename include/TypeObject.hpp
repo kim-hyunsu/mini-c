@@ -35,6 +35,8 @@ public:
   static TypeObject *buildPointer(TypeObject *baseType);
   static TypeObject *buildArray(TypeObject *baseType, std::vector<int> &arraySize);
   static TypeObject *buildFunction(std::vector<TypeObject *> &parameterTypes, TypeObject *returnType);
+
+  std::string printType();
   //Type stringToType(std::string);
 };
 

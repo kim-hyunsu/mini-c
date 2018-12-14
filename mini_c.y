@@ -70,7 +70,7 @@ parameters_list
   : parameters_list ',' parameter 
     {$1->addChild($3); $$ = $1;}   
   | parameter
-    {auto pt=new ParseTree(); pt->tag=NONTERMINAL; pt->wordData="parameters_list"; $$=pt;}
+    {auto pt=new ParseTree($1); pt->tag=NONTERMINAL; pt->wordData="parameters_list"; $$=pt;}
   ;
 
 parameter

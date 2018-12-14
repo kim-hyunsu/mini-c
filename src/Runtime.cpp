@@ -32,13 +32,14 @@ void Runtime::findProcedures() {
 
     std::vector<TypeObject*> parameters;
     for (int k = 0; k < params->children.size(); k++) {
-      auto type = params->children[0];
+      auto param = params->children[k];
+      auto type = param->children[0];
       TypeObject *paramType;
       if (type->tag == INT) paramType = new TypeObject(TYPE_INT);
       else if (type->tag == FLOAT) paramType = new TypeObject(TYPE_FLOAT);
       else { std::cout << "Procedure parameter type is wrong." << std::endl;}
       
-      auto ptr = params->children[1];
+      auto ptr = param->children[1];
 
       while (ptr->tag != ID) {
         ptr = ptr->children[0];
@@ -65,6 +66,8 @@ void Runtime::findProcedures() {
     this->symbolTable.addNewSymbol(name->wordData, functionType, pr);
 
     std::cout << "Procedure found : " << name->wordData << " " << pr << std::endl;
+
+    std::cout << functionType.printType() << std::endl;
   }  
 }
 

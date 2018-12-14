@@ -70,3 +70,28 @@ TypeObject *TypeObject::buildFunction(std::vector<TypeObject *> &parameterTypes,
   obj->parameterTypes = parameterTypes;
   obj->returnType = returnType;
 }
+
+std::string TypeObject::printType() {
+  switch (this->typ)
+    {
+    case TYPE_VOID:
+      return "void";
+    case TYPE_INT:
+      return "int";
+    case TYPE_FLOAT:
+      return "float";
+    case TYPE_POINTER:
+      return "pointer to " + baseType->printType();
+    case TYPE_ARRAY:
+      return std::to_string(arraySize[0]) + " array of " + baseType->printType();
+    case TYPE_FUNCTION:
+      std::string ret = "function : ";
+      for (int i = 0; i < this->parameterTypes.size(); i++) {
+        ret += parameterTypes[i]->printType();
+        ret += ", ";
+      }
+      ret += "-> ";
+      ret += returnType->printType();
+      return ret;
+    }
+}
