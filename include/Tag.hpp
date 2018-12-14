@@ -52,6 +52,8 @@ inline int tokenType(int tag) {
         return REAL;
     case INC:
     case DEC:
+    case EQUAL:
+    case NEQUAL:
     case BASIC:
     case IF:
     case ELSE:

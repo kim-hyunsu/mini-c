@@ -63,7 +63,22 @@ Token Lexer::scan()
         }
         else
             return Token('-');
+    case '=':
+        if (readch('=')) {
+            this->wordData = wordEqual.lexeme;
+            return Word(wordEqual.lexeme, wordEqual.tag);
+        }
+        else
+            return Token('=');
+    case '!':
+        if (readch('=')) {
+            this->wordData = wordNEqual.lexeme;
+            return Word(wordNEqual.lexeme, wordNEqual.tag);
+        }
+        else
+            return Token('!');
     }
+    
     
     if('0' <= peek && peek <= '9')
     {

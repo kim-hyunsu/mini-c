@@ -11,7 +11,7 @@ int yylex();
 %}
 
 
-%token GREATER LESS T F ADD SUB MUL DIV MOD MINUS ASSIGN
+%token GREATER LESS EQUAL NEQUAL T F ADD SUB MUL DIV MOD MINUS ASSIGN
 %token POINTER ARRAY ADDR INC DEC BASIC IF ELSE FOR TEMP
 %token INDEX NUM REAL ID COMMA FUNC
 %token INT FLOAT VOID
@@ -130,7 +130,7 @@ assignment
   ;
 
 expression
-  : arithmetic_expr
+  : equality_expr
     {$$ = $1;}
   | assignment
     {$$ = $1;}
@@ -195,6 +195,23 @@ loop_statement
     {$1->addChild($3); $1->addChild($5); $1->addChild($7); $1->addChild($9); $$=$1;}
   ;
 
+comparison_expr
+  : arithmetic_expr
+    {$$=$1;}
+  | arithmetic_expr '<' arithmetic_expr
+    {$2->addChild($1); $2->addChild($3); $$=$2;}
+  | arithmetic_expr '>' arithmetic_expr
+    {$2->addChild($1); $2->addChild($3); $$=$2;}
+  ;
+
+equality_expr
+  : comparison_expr
+    {$$=$1;}
+  | comparison_expr EQUAL comparison_expr
+    {$2->addChild($1); $2->addChild($3); $$=$2;}
+  | comparison_expr NEQUAL comparison_expr
+    {$2->addChild($1); $2->addChild($3); $$=$2;}
+  ;
 %%
 
 extern char yytext[];
