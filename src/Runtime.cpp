@@ -75,13 +75,39 @@ bool Runtime::getBoolean(ParseTree *tree)
 {
   if (tree->tag == EQUAL || tree->tag == NEQUAL)
   {
-    for (int i = 0; i < tree->children.size(); i++)
+    if (tree->children.size() != 2)
     {
+      throw "Invalid syntax";
+    }
+    ParseTree *left = tree->children[0];
+    ParseTree *right = tree->children[1];
+    TypeObject *type = this->getType(left);
+    if (type->typ != this->getType(right)->typ)
+    {
+      throw "Type error";
+    }
+    switch (type->typ)
+    {
+    case TYPE_INT:
+      int left_val = this->getInteger(left);
+      int right_val = this->getInteger(right);
+      return left_val == right_val;
+    case TYPE_FLOAT:
+      double left_val = this->getReal(left);
+      double right_val = this->getReal(right);
+      return left_val == right_val;
+    case TYPE_ARRAY:
+    case TYPE_POINTER:
+      void *left_p = this->getPointer(left);
+      void *right_p = this->getPointer(right);
+      return left_p == right_p;
+    default:
+      throw "Type error";
     }
   }
   else
   {
-    throw NULL;
+    throw "Type error";
   }
 }
 
@@ -93,6 +119,10 @@ double Runtime::getReal(ParseTree *tree)
 {
 }
 
-TypeObject Runtime::getType(ParseTree *tree)
+void *Runtime::getPointer(ParseTree *tree)
+{
+}
+
+TypeObject *Runtime::getType(ParseTree *tree)
 {
 }

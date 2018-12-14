@@ -23,7 +23,8 @@ public:
   bool getBoolean(ParseTree *tree);
   int getInteger(ParseTree *tree);
   double getReal(ParseTree *tree);
-  TypeObject getType(ParseTree *tree);
+  void *Runtime::getPointer(ParseTree *tree);
+  TypeObject *getType(ParseTree *tree);
 };
 
 #endif
