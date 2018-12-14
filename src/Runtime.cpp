@@ -70,3 +70,29 @@ vector<string> Runtime::trace(string var)
   }
   return history;
 }
+
+bool Runtime::getBoolean(ParseTree *tree)
+{
+  if (tree->tag == EQUAL || tree->tag == NEQUAL)
+  {
+    for (int i = 0; i < tree->children.size(); i++)
+    {
+    }
+  }
+  else
+  {
+    throw NULL;
+  }
+}
+
+int Runtime::getInteger(ParseTree *tree)
+{
+}
+
+double Runtime::getReal(ParseTree *tree)
+{
+}
+
+TypeObject Runtime::getType(ParseTree *tree)
+{
+}

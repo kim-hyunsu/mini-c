@@ -39,19 +39,3 @@ void ParseTree::printParseTree(int l)
     this->children[k]->printParseTree(l + 1);
   }
 }
-
-bool getBoolean()
-{
-}
-
-int getInteger()
-{
-}
-
-double getReal()
-{
-}
-
-TypeObject getType()
-{
-}

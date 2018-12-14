@@ -20,6 +20,10 @@ public:
   bool runLine();
   string print(string var);
   vector<string> trace(string var);
+  bool getBoolean(ParseTree *tree);
+  int getInteger(ParseTree *tree);
+  double getReal(ParseTree *tree);
+  TypeObject getType(ParseTree *tree);
 };
 
 #endif
