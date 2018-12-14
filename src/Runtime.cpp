@@ -491,13 +491,6 @@ Value Runtime::evaluate(ParseTree *tree)
     value.type = TYPE_FLOAT;
     break;
   }
-  case INC:
-  case DEC:
-    tree = tree->children[0];
-    if (tree->tag != ID || tree->wordData != "subscript")
-    {
-      throw "Type error";
-    }
   case ID:
   {
     SymbolTableEntry ste = getSymbolTableEntry(&this->symbolTable, tree->wordData);
@@ -630,6 +623,88 @@ Value Runtime::evaluate(ParseTree *tree)
     else
     {
       throw "type error";
+    }
+    break;
+  }
+  case INC:
+  {
+    Value rvalue = this->evaluate(tree->children[0]);
+    if (rvalue.type == TYPE_INT)
+      rvalue.integer++;
+    else if (rvalue.type == TYPE_FLOAT)
+      rvalue.real++;
+    else if (rvalue.type == TYPE_POINTER)
+      rvalue.pointer = (int *)rvalue.pointer + 1;
+    else
+      throw "Type error";
+    value = rvalue;
+    std::string variableName = tree->children[0]->wordData;
+    int arrayIndex = 0;
+    if (variableName == "subscript")
+    {
+      ParseTree *ltree = tree->children[0];
+      ParseTree *rtree = tree->children[1];
+      Value arrayIndexValue = this->evaluate(rtree);
+      if (ltree->tag != ID || arrayIndexValue.type != TYPE_INT)
+      {
+        throw "type error";
+      }
+      variableName = ltree->wordData;
+      int line = ltree->lineNumber;
+      arrayIndex = arrayIndexValue.integer;
+      int index = this->symbolTable.lookup(variableName);
+      if (index < 0)
+        throw "Not declared";
+      this->symbolTable.setArrayEntry(index, arrayIndex, rvalue, line);
+    }
+    else
+    {
+      int index = this->symbolTable.lookup(variableName);
+      int line = tree->children[0]->lineNumber;
+      if (index < 0)
+        throw "Not declared";
+      this->symbolTable.set(index, rvalue, line);
+    }
+    break;
+  }
+  case DEC:
+  {
+    Value rvalue = this->evaluate(tree->children[0]);
+    if (rvalue.type == TYPE_INT)
+      rvalue.integer--;
+    else if (rvalue.type == TYPE_FLOAT)
+      rvalue.real--;
+    else if (rvalue.type == TYPE_POINTER)
+      rvalue.pointer = (int *)rvalue.pointer - 1;
+    else
+      throw "Type error";
+    value = rvalue;
+    std::string variableName = tree->children[0]->wordData;
+    int arrayIndex = 0;
+    if (variableName == "subscript")
+    {
+      ParseTree *ltree = tree->children[0];
+      ParseTree *rtree = tree->children[1];
+      Value arrayIndexValue = this->evaluate(rtree);
+      if (ltree->tag != ID || arrayIndexValue.type != TYPE_INT)
+      {
+        throw "type error";
+      }
+      variableName = ltree->wordData;
+      int line = ltree->lineNumber;
+      arrayIndex = arrayIndexValue.integer;
+      int index = this->symbolTable.lookup(variableName);
+      if (index < 0)
+        throw "Not declared";
+      this->symbolTable.setArrayEntry(index, arrayIndex, rvalue, line);
+    }
+    else
+    {
+      int index = this->symbolTable.lookup(variableName);
+      int line = tree->children[0]->lineNumber;
+      if (index < 0)
+        throw "Not declared";
+      this->symbolTable.set(index, rvalue, line);
     }
     break;
   }
