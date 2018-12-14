@@ -78,18 +78,28 @@ parameter
   ;
 
 ID_type_declaration
-  : type ID
+  : type_declarator ID_declaration
     {auto pt=new ParseTree($1, $2); pt->tag=NONTERMINAL; pt->wordData="IDtypeDeclaration"; $$=pt;}     
-  | type ID array_declaration 
-    {auto pt=new ParseTree($1, $2, $3); pt->tag=NONTERMINAL; pt->wordData="IDtypeDeclaration"; $$=pt;}     
-           
+  ;
+
+type_declarator
+  : type
+    {$$ = $1;}
+  | type_declarator '*'
+    {$2->addChild($1); $$=$2;}
+
+ID_declaration
+  : ID
+    {$$ = $1;}
+  | ID array_declaration
+    {$1->addChild($2); $$=$1;}
   ;
 
 array_declaration
   : '[' ']'
-    {$$ = new ParseTree();}      
+    {auto pt=new ParseTree(); pt->tag=NONTERMINAL; pt->wordData="variable_array"; $$=pt;}      
   | '[' NUM ']'
-    {$$ = new ParseTree($2);}
+    {auto pt=new ParseTree($2); pt->tag=NONTERMINAL; pt->wordData="fixed_array"; $$=pt;}      
   ;
 
 block
@@ -161,7 +171,7 @@ mult_expr
     {$2->addChild($1); $2->addChild($3); $$=$2;}
   ;
 
-unary_expr
+postfix_expr
   : single_expr
     {$$ = $1;}
   | single_expr DEC
@@ -170,6 +180,17 @@ unary_expr
     {$2->addChild($1); $$=$2;}
   | single_expr '[' expression ']'
     {auto pt = new ParseTree($1,$3); pt->tag=NONTERMINAL; pt->wordData="subscript"; $$=pt;}
+  ;
+
+unary_expr
+  : postfix_expr
+    {$$ = $1;}
+  | '*' unary_expr
+    {$1->addChild($2); $$=$1;}
+  | INC unary_expr
+    {$1->addChild($2); $$=$1;}
+  | DEC unary_expr
+    {$1->addChild($2); $$=$1;}
   ;
 
 single_expr
