@@ -19,6 +19,7 @@ public:
   double realData;
   std::string wordData;
   ParseTree *parent;
+  ParseTree *nextSibling;
   std::vector<ParseTree *> children;
 
   ParseTree(){};
@@ -43,9 +44,11 @@ public:
   }
   void addChild(ParseTree *childPtr)
   {
+    this->children.back()->nextSibling = childPtr;
     this->children.push_back(childPtr);
     if (childPtr != nullptr)
       childPtr->parent = this;
+      childPtr->nextSibling = nullptr;
   }
   void printParseTree(int l);
   bool getBoolean();
