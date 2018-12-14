@@ -132,9 +132,9 @@ int yylex() {
   if (parser->cursor == parser->tokens.size()) {
     return -1;
   }
-
   auto t = parser->tokens[parser->cursor];
   yylval = new ParseTree();
+  yylval->lineNumber = t.second.lineNumber;
   yylval->tag = t.second.tag;
   if (tokenType(t.second.tag) == -1) {
   }

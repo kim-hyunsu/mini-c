@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Lexer::Lexer()
+Lexer::Lexer() : currentLineNumber(1)
 {
     reserve(Word("if", IF));
     reserve(Word("else", ELSE));
@@ -44,7 +44,7 @@ Token Lexer::scan()
     for(; ; readch())
     {
         if(peek == ' ' || peek == '\t') continue;
-        else if(peek == '\n') line = line + 1;
+        else if(peek == '\n') currentLineNumber += 1;
         else break;
     }
 
@@ -52,31 +52,31 @@ Token Lexer::scan()
     case '+':
         if(readch('+')) {
             this->wordData = wordInc.lexeme;
-            return Word(wordInc.lexeme, wordInc.tag);
+            return Word(wordInc.lexeme, wordInc.tag, this->currentLineNumber);
         }
         else
-            return Token('+');
+            return Token('+', this->currentLineNumber);
     case '-':
         if(readch('-')) {
             this->wordData = wordDec.lexeme;
-            return Word(wordDec.lexeme, wordDec.tag);
+            return Word(wordDec.lexeme, wordDec.tag, this->currentLineNumber);
         }
         else
-            return Token('-');
+            return Token('-', this->currentLineNumber);
     case '=':
         if (readch('=')) {
             this->wordData = wordEqual.lexeme;
-            return Word(wordEqual.lexeme, wordEqual.tag);
+            return Word(wordEqual.lexeme, wordEqual.tag, this->currentLineNumber);
         }
         else
-            return Token('=');
+            return Token('=', this->currentLineNumber);
     case '!':
         if (readch('=')) {
             this->wordData = wordNEqual.lexeme;
-            return Word(wordNEqual.lexeme, wordNEqual.tag);
+            return Word(wordNEqual.lexeme, wordNEqual.tag, this->currentLineNumber);
         }
         else
-            return Token('!');
+            return Token('!', this->currentLineNumber);
     }
     
     
@@ -90,7 +90,7 @@ Token Lexer::scan()
         } while('0' <= peek && peek <= '9');
         if(peek != '.') {
             this->numData = v;
-            return Num(v);
+            return Num(v, this->currentLineNumber);
         }
 
         double x = v, d = 10;
@@ -107,7 +107,7 @@ Token Lexer::scan()
         }
 
         this->realData = x;
-        return Real(x);
+        return Real(x, this->currentLineNumber);
     }
     if(isalpha(peek) || peek == '_')
     {
@@ -130,19 +130,20 @@ Token Lexer::scan()
 
             this->wordData = f->first;
             Word w = f->second;
+            w.lineNumber = this->currentLineNumber;
             //Word w = words[s];
             return w;
         }
         catch(const out_of_range& oor)
         {
             this->wordData = s;
-            Word w = Word(s, ID);
+            Word w = Word(s, ID, this->currentLineNumber);
             words.insert({s, w});
             return w;
         }
     }
 
-    Token tok = Token(peek);
+    Token tok = Token(peek, this->currentLineNumber);
     peek = ' ';
     return tok;
 }
