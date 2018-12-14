@@ -135,14 +135,14 @@ declaration
   ;
 
 assignment
-  : expression '=' expression
+  : equality_expr
+    {$$ = $1;}
+  | equality_expr '=' equality_expr
     {$2->addChild($1); $2->addChild($3); $$=$2;}
   ;
 
 expression
-  : equality_expr
-    {$$ = $1;}
-  | assignment
+  : assignment
     {$$ = $1;}
   ;
 
@@ -174,12 +174,23 @@ mult_expr
 postfix_expr
   : single_expr
     {$$ = $1;}
-  | single_expr DEC
+  | postfix_expr DEC
     {$2->addChild($1); $$=$2;}
-  | single_expr INC
+  | postfix_expr INC
     {$2->addChild($1); $$=$2;}
-  | single_expr '[' expression ']'
+  | postfix_expr '[' expression ']'
     {auto pt = new ParseTree($1,$3); pt->tag=NONTERMINAL; pt->wordData="subscript"; $$=pt;}
+  | postfix_expr '(' ')'
+    {auto pt=new ParseTree($1); pt->tag=NONTERMINAL; pt->wordData="call"; $$=pt;}
+  | postfix_expr '(' args_list ')'
+    {auto pt=new ParseTree($1,$3); pt->tag=NONTERMINAL; pt->wordData="call"; $$=pt;}
+  ;
+
+args_list
+  : args_list ',' assignment 
+    {$1->addChild($3); $$=$1;}
+  | assignment
+    {auto pt=new ParseTree($1); pt->tag=NONTERMINAL; pt->wordData="args_list"; $$=pt;}
   ;
 
 unary_expr
