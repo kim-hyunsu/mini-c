@@ -39,6 +39,16 @@ bool Runtime::runLine()
     break;
   case NEQUAL:
     break;
+  case BASIC:
+    break;
+  case IF:
+    break;
+  case ELSE:
+    break;
+  case FOR:
+    break;
+  case TEMP:
+    break;
   }
 
   return end;

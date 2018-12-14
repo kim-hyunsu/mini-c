@@ -40,4 +40,13 @@ void ParseTree::printParseTree(int l)
   }
 }
 
-int run(int line) {}
+bool getBoolean()
+{
+}
+
+int getInteger()
+{
+}
+double getReal()
+{
+}

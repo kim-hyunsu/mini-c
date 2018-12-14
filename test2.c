@@ -12,4 +12,5 @@ int main ( ) {
 }
 int test(float num) {
   int a = 1;
+  return a;
 }

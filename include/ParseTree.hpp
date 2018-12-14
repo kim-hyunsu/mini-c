@@ -47,7 +47,9 @@ public:
       childPtr->parent = this;
   }
   void printParseTree(int l);
-  int run(int line);
+  bool getBoolean();
+  int getInteger();
+  double getReal();
 };
 
 #define YYSTYPE ParseTree *
