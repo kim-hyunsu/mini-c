@@ -2,13 +2,12 @@
 #include <vector>
 #include "TypeObject.hpp"
 
-using namespace std;
-
-struct NameInfo
+class NameInfo
 {
+public:
   TypeObject type;
-  string name;
-}
+  std::string name;
+};
 
-vector<string>
-parsePrompt(string command);
+std::vector<std::string> parsePrompt(std::string command);
+NameInfo parseVariable(std::string variableName);

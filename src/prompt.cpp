@@ -1,16 +1,12 @@
-#include <string>
-#include <vector>
-#include <iostream>
-#include "TypeObject.hpp"
-using namespace std;
+#include "prompt.hpp"
 
-vector<string> parsePrompt(string command)
+std::vector<std::string> parsePrompt(std::string command)
 {
-  string delimiter = " ";
+  std::string delimiter = " ";
   size_t pos = 0;
-  string token;
-  vector<string> argv;
-  while ((pos = command.find(delimiter)) != string::npos)
+  std::string token;
+  std::vector<std::string> argv;
+  while ((pos = command.find(delimiter)) != std::string::npos)
   {
     token = command.substr(0, pos);
     argv.push_back(token);
@@ -20,12 +16,14 @@ vector<string> parsePrompt(string command)
   return argv;
 }
 
-struct NameInfo parseVariable(string variableName)
-{
-  struct NameInfo nameInfo;
-  string asterRisk = "*";
-  string leftBracket = "[";
-  string rightBracket = "]";
-  // TODO
-  return nameInfo;
-}
+// NameInfo parseVariable(std::string variableName)
+// {
+//   NameInfo nameInfo = NameInfo();
+//   nameInfo.type = TypeObject(TYPE_VOID);
+//   nameInfo.name = variableName;
+//   std::string asterRisk = "*";
+//   std::string leftBracket = "[";
+//   std::string rightBracket = "]";
+//   // TODO
+//   return nameInfo;
+// }

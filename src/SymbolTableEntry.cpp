@@ -60,11 +60,11 @@ static std::string toString(TypeObject type, void *addr)
       {
         if (type.baseType->typ == TYPE_POINTER)
         {
-          ss << toString(*type.baseType, addr + 8 * i);
+          ss << toString(*type.baseType, (char *)addr + 8 * i);
         }
         else
         {
-          ss << toString(*type.baseType, addr + 4 * i);
+          ss << toString(*type.baseType, (char *)addr + 4 * i);
         }
         ss << ", ";
       }
