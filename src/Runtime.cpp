@@ -1,6 +1,8 @@
 #include "Runtime.hpp"
 #include <iostream>
 
+static SymbolTableEntry getSymbolTableEntry(SymbolTable *symbolTable, std::string name);
+
 Runtime::Runtime(ParseTree *root) : root(root), nextLine(1), currentNode(root)
 {
   this->symbolTable = SymbolTable();
@@ -89,18 +91,18 @@ bool Runtime::getBoolean(ParseTree *tree)
     switch (type->typ)
     {
     case TYPE_INT:
-      int left_val = this->getInteger(left);
-      int right_val = this->getInteger(right);
-      return left_val == right_val;
+      int lvalue = this->getInteger(left);
+      int rvalue = this->getInteger(right);
+      return tree->tag == EQUAL ? lvalue == rvalue : lvalue != rvalue;
     case TYPE_FLOAT:
-      double left_val = this->getReal(left);
-      double right_val = this->getReal(right);
-      return left_val == right_val;
+      double lvalue = this->getReal(left);
+      double rvalue = this->getReal(right);
+      return tree->tag == EQUAL ? lvalue == rvalue : lvalue != rvalue;
     case TYPE_ARRAY:
     case TYPE_POINTER:
-      void *left_p = this->getPointer(left);
-      void *right_p = this->getPointer(right);
-      return left_p == right_p;
+      void *lpointer = this->getPointer(left);
+      void *rpointer = this->getPointer(right);
+      return tree->tag == EQUAL ? lpointer == rpointer : lpointer != rpointer;
     default:
       throw "Type error";
     }
@@ -113,6 +115,28 @@ bool Runtime::getBoolean(ParseTree *tree)
 
 int Runtime::getInteger(ParseTree *tree)
 {
+  switch (tree->tag)
+  {
+  case NUM:
+    return tree->numData;
+  case INC:
+  case DEC:
+    tree = tree->children[0];
+    if (tree->tag != ID)
+    {
+      throw "Type error";
+    }
+  case ID:
+    SymbolTableEntry ste = getSymbolTableEntry(&this->symbolTable, tree->wordData);
+    if (ste.getType().typ != TYPE_INT)
+    {
+      throw "Type error";
+    }
+    return *(int *)ste.variableAddress;
+    // case '+':
+    //   TypeObject *ltype = this->getType(tree->children[0]);
+    //   TypeObject *rtype = this->getType(tree->children[1]);
+  }
 }
 
 double Runtime::getReal(ParseTree *tree)
@@ -125,4 +149,18 @@ void *Runtime::getPointer(ParseTree *tree)
 
 TypeObject *Runtime::getType(ParseTree *tree)
 {
+}
+
+static SymbolTableEntry getSymbolTableEntry(SymbolTable *symbolTable, std::string name)
+{
+  int index = symbolTable->lookup(name);
+  switch (index)
+  {
+  case -2: // Invisible
+    throw "Invisible";
+  case -1: // Not found
+    throw "Not found";
+  default:
+    return symbolTable->get(index);
+  }
 }

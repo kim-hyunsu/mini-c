@@ -11,8 +11,10 @@ private:
   TypeObject variableType;
   int level;
   int procedure;
-  void *variableAddress;
   HistoryTable history;
+
+public:
+  void *variableAddress;
 
 public:
   SymbolTableEntry(std::string name, TypeObject vType, int lv, int proc, void *address);
@@ -20,5 +22,6 @@ public:
   int getProcedure();
   bool checkName(std::string str);
   std::string getValue();
+  TypeObject getType();
   std::vector<std::string> getHistory(std::string name);
 };
