@@ -1,7 +1,11 @@
+#ifndef SYMBOLTABLE_H
+#define SYMBOLTABLE_H
+
 #include <string>
 #include <vector>
 
 #include "SymbolTableEntry.hpp"
+#include "Value.hpp"
 
 class SymbolTable
 {
@@ -20,4 +24,8 @@ public:
   void newProcedure();
   void deleteProcedure();
   SymbolTableEntry get(int index);
+  void set(int index, Value value);
+  void setArrayEntry(int index, int arrayIndex, Value value);
 };
+
+#endif

@@ -4,6 +4,7 @@
 #include "parser.hpp"
 #include "SymbolTable.hpp"
 #include "CallStack.hpp"
+#include "Value.hpp"
 
 class Runtime
 {
@@ -20,11 +21,7 @@ public:
   bool runLine();
   string print(string var);
   vector<string> trace(string var);
-  bool getBoolean(ParseTree *tree);
-  int getInteger(ParseTree *tree);
-  double getReal(ParseTree *tree);
-  void *Runtime::getPointer(ParseTree *tree);
-  TypeObject *getType(ParseTree *tree);
+  Value evaluate(ParseTree *tree);
 };
 
 #endif
