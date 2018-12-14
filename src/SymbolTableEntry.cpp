@@ -25,10 +25,12 @@ bool SymbolTableEntry::checkName(std::string str)
 
 std::string SymbolTableEntry::getValue()
 {
-  if (this->assigned == false) {
+  if (this->assigned == false)
+  {
     return "N/A";
   }
-  else {
+  else
+  {
     TypeObject type = this->variableType;
     void *addr = this->variableAddress;
     return toString(type, addr);
@@ -59,7 +61,7 @@ static std::string toString(TypeObject type, void *addr)
     value = std::to_string(*(float *)addr);
     break;
   case TYPE_POINTER:
-    ss << *(void**)addr;
+    ss << *(void **)addr;
     value = ss.str();
     break;
   case TYPE_ARRAY:
