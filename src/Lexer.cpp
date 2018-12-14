@@ -21,6 +21,7 @@ Lexer::Lexer() : currentLineNumber(1)
     reserve(Word("void", VOID));
     
     reserve(Word("return", RETURN));
+    reserve(Word("printf", PRINTF));
     
     /*
     reserve(TYPE.INT);
@@ -49,6 +50,22 @@ Token Lexer::scan()
     }
 
     switch(peek) {
+    case '\"': {
+        std::string printfStr = "\"";
+        while (true) {
+            readch();
+            if (peek != '\"') {
+                printfStr += peek;
+            }
+            else {
+                printfStr += peek;
+                readch();
+                break;
+            }
+        }
+        this->wordData = printfStr;
+        return Word(printfStr, PRINTFARG, this->currentLineNumber);
+        }
     case '+':
         if(readch('+')) {
             this->wordData = wordInc.lexeme;
@@ -101,7 +118,7 @@ Token Lexer::scan()
 
             if('0' > peek || peek > '9')
                 break;
-            
+    
             x = x + (peek - '0') / d;
             d *= 10;
         }
@@ -122,7 +139,6 @@ Token Lexer::scan()
 
         try
         {
-
             auto f = words.find(s);
 
             if (f == words.end())

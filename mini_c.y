@@ -16,6 +16,7 @@ int yylex();
 %token INDEX NUM REAL ID COMMA FUNC
 %token INT FLOAT VOID
 %token CONTINUE BREAK RETURN
+%token PRINTF PRINTFARG
 %token NONTERMINAL
 
 %start start_symbol
@@ -152,6 +153,13 @@ statement
     {$$ = $1;}
   | return_statement
     {$$ = $1;}
+  | printf_statement
+    {$$ = $1;}
+  ;
+
+printf_statement
+  : PRINTF '(' PRINTFARG ',' expression ')' ';'
+    {$1->addChild($3); $1->addChild($5); $$=$1;}
   ;
 
 return_statement
