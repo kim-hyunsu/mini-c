@@ -4,7 +4,7 @@
 static std::string toString(TypeObject type, void *addr);
 
 SymbolTableEntry::SymbolTableEntry(std::string name, TypeObject vType, int lv, int proc, void *address)
-    : name(name), variableType(vType), level(lv), procedure(proc), variableAddress(address)
+    : name(name), variableType(vType), level(lv), procedure(proc), variableAddress(address), assigned(false)
 {
 }
 
@@ -25,9 +25,14 @@ bool SymbolTableEntry::checkName(std::string str)
 
 std::string SymbolTableEntry::getValue()
 {
-  TypeObject type = this->variableType;
-  void *addr = this->variableAddress;
-  return toString(type, addr);
+  if (this->assigned == false) {
+    return "N/A";
+  }
+  else {
+    TypeObject type = this->variableType;
+    void *addr = this->variableAddress;
+    return toString(type, addr);
+  }
 }
 
 TypeObject SymbolTableEntry::getType()
@@ -44,6 +49,7 @@ static std::string toString(TypeObject type, void *addr)
 {
   std::string value;
   std::stringstream ss;
+
   switch (type.typ)
   {
   case TYPE_INT:
@@ -53,7 +59,7 @@ static std::string toString(TypeObject type, void *addr)
     value = std::to_string(*(float *)addr);
     break;
   case TYPE_POINTER:
-    ss << addr;
+    ss << *(void**)addr;
     value = ss.str();
     break;
   case TYPE_ARRAY:

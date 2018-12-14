@@ -9,6 +9,7 @@ private:
   //int index;
   std::string name;
   TypeObject variableType;
+  bool assigned;
   int level;
   int procedure;
   HistoryTable history;

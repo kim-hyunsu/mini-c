@@ -34,6 +34,10 @@ int main(int argc, char *argv[])
   root->printParseTree(0);
   // running
   Runtime *run = new Runtime(root);
+
+  run->findProcedures();
+  run->findMain();
+
   // prompt
   vector<string> arglist;
   while (true)

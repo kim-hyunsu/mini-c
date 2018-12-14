@@ -11,7 +11,8 @@ enum Type
   TYPE_INT,
   TYPE_FLOAT,
   TYPE_ARRAY,
-  TYPE_POINTER
+  TYPE_POINTER,
+  TYPE_BOOL
 };
 
 class TypeObject
