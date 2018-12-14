@@ -18,6 +18,10 @@ Lexer::Lexer()
     
     reserve(Word("int", INT));
     reserve(Word("float", FLOAT));
+    reserve(Word("void", VOID));
+    
+    reserve(Word("return", RETURN));
+    
     /*
     reserve(TYPE.INT);
     reserve(TYPE.BOOL);
@@ -59,7 +63,22 @@ Token Lexer::scan()
         }
         else
             return Token('-');
+    case '=':
+        if (readch('=')) {
+            this->wordData = wordEqual.lexeme;
+            return Word(wordEqual.lexeme, wordEqual.tag);
+        }
+        else
+            return Token('=');
+    case '!':
+        if (readch('=')) {
+            this->wordData = wordNEqual.lexeme;
+            return Word(wordNEqual.lexeme, wordNEqual.tag);
+        }
+        else
+            return Token('!');
     }
+    
     
     if('0' <= peek && peek <= '9')
     {

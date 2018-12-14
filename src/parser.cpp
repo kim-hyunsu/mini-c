@@ -21,25 +21,25 @@ void Parser::tokenize()
       if (tokenType(t.tag) == -1)
       {
         tokens.push_back(std::pair<void *, Token>(nullptr, t));
-        std::cout << "|" << t.tag << ":" << (char)t.tag << " ";
+        //std::cout << "|" << t.tag << ":" << (char)t.tag << " ";
       }
       else if (tokenType(t.tag) == NUM)
       {
         int *addr = new int(lexer.numData);
         tokens.push_back(std::pair<void *, Token>(addr, t));
-        std::cout << "|" << t.tag << ":" << lexer.numData << " ";
+        //std::cout << "|" << t.tag << ":" << lexer.numData << " ";
       }
       else if (tokenType(t.tag) == REAL)
       {
-        double *addr = new double(lexer.numData);
+        double *addr = new double(lexer.realData);
         tokens.push_back(std::pair<void *, Token>(addr, t));
-        std::cout << "|" << t.tag << ":" << lexer.realData << " ";
+        //std::cout << "|" << t.tag << ":" << lexer.realData << " ";
       }
       else if (tokenType(t.tag) == 0)
       {
         std::string *addr = new std::string(lexer.wordData);
         tokens.push_back(std::pair<void *, Token>(addr, t));
-        std::cout << "|" << t.tag << ":" << lexer.wordData << " ";
+        //std::cout << "|" << t.tag << ":" << lexer.wordData << " ";
       }
       else if (tokenType(t.tag) == 1)
       {

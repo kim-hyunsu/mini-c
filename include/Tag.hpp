@@ -1,6 +1,7 @@
 #ifndef TAG_H
 #define TAG_H
 
+#include "ParseTree.hpp"
 #include "../y.tab.h"
 
 /*
@@ -51,6 +52,8 @@ inline int tokenType(int tag) {
         return REAL;
     case INC:
     case DEC:
+    case EQUAL:
+    case NEQUAL:
     case BASIC:
     case IF:
     case ELSE:
@@ -61,7 +64,10 @@ inline int tokenType(int tag) {
     case INT:
     case FLOAT:
     case VOID:
+    case RETURN:
         return 0;
+    case NONTERMINAL:
+        return 2;
     default:
         return 1;
     }

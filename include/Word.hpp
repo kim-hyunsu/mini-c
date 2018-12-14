@@ -14,6 +14,6 @@ public:
     ~Word() {};
 };
 
-const Word wordTrue("true", T), wordFalse("false", F), wordInc("++", INC), wordDec("--", DEC);
+const Word wordTrue("true", T), wordFalse("false", F), wordInc("++", INC), wordDec("--", DEC), wordEqual("==", EQUAL), wordNEqual("!=", NEQUAL);
 
 #endif

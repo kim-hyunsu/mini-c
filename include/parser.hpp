@@ -5,6 +5,7 @@
 
 #include "Lexer.hpp"
 #include "TypeObject.hpp"
+#include "ParseTree.hpp"
 
 class Parser {
 public:

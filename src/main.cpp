@@ -13,7 +13,9 @@ using namespace std;
 static bool invalidArgNum(int argc, int validNum);
 
 Parser *parser;
-extern int yylval;
+ParseTree *root;
+
+extern YYSTYPE yylval;
 int yyparse(void);
 
 int main(int argc, char *argv[])
@@ -25,7 +27,11 @@ int main(int argc, char *argv[])
   // scanning
   parser->tokenize();
   // parsing
-  yyparse();
+  int i = yyparse();
+  std::cout << "yyparse result : " << i << std::endl;
+
+  std::cout << root->children.size() << std::endl;
+  root->printParseTree(0);
   // running
   Runtime *run = new Runtime(parser);
   // prompt
@@ -86,17 +92,6 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-int yylex()
-{
-  if (parser->cursor == parser->tokens.size())
-  {
-    return -1;
-  }
-  auto t = parser->tokens[parser->cursor];
-  parser->cursor++;
-  return t.second.tag;
-}
-
 static bool invalidArgNum(int argc, int validNum)
 {
   if (argc != validNum)
@@ -105,4 +100,36 @@ static bool invalidArgNum(int argc, int validNum)
     return true;
   }
   return false;
+}
+
+int yylex()
+{
+  if (parser->cursor == parser->tokens.size())
+  {
+    return -1;
+  }
+
+  auto t = parser->tokens[parser->cursor];
+  yylval = new ParseTree();
+  yylval->tag = t.second.tag;
+  if (tokenType(t.second.tag) == -1)
+  {
+  }
+  else if (tokenType(t.second.tag) == NUM)
+  {
+    yylval->numData = *(int *)t.first;
+  }
+  else if (tokenType(t.second.tag) == REAL)
+  {
+    yylval->realData = *(double *)t.first;
+  }
+  else if (tokenType(t.second.tag) == 0)
+  {
+    yylval->wordData = *(std::string *)t.first;
+  }
+  else if (tokenType(t.second.tag) == 1)
+  {
+  }
+  parser->cursor++;
+  return t.second.tag;
 }
