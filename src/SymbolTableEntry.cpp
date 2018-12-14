@@ -53,10 +53,10 @@ static std::string toString(TypeObject type, void *addr)
     break;
   case TYPE_ARRAY:
     ss << "{";
-    for (int i = 0; i < type.arraySize.size() - 1; i++)
+    for (int i = 0; i < type.arraySize.size(); i++)
     {
       ss << "{";
-      for (int j = 0; j < type.arraySize[i] - 1; j++)
+      for (int j = 0; j < type.arraySize[i]; j++)
       {
         if (type.baseType->typ == TYPE_POINTER)
         {

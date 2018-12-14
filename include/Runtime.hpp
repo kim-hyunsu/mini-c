@@ -8,14 +8,16 @@
 class Runtime
 {
 private:
-  Parser *parser;
+  ParseTree *root;
   SymbolTable symbolTable;
   CallStack callStack;
-  int currentLine;
+  int nextLine;
+  ParseTree *currentNode;
 
 public:
-  Runtime(Parser *parser);
+  Runtime(ParseTree *root);
   bool next(int lines);
+  bool runLine();
   string print(string var);
   vector<string> trace(string var);
 };

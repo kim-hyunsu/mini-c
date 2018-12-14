@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   std::cout << root->children.size() << std::endl;
   root->printParseTree(0);
   // running
-  Runtime *run = new Runtime(parser);
+  Runtime *run = new Runtime(root);
   // prompt
   vector<string> arglist;
   while (true)

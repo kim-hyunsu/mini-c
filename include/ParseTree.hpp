@@ -8,25 +8,47 @@
 #include "Token.hpp"
 #include "Tag.hpp"
 
-class ParseTree {
+class ParseTree
+{
 public:
   std::string name;
   int tag;
   int numData;
   double realData;
   std::string wordData;
-  ParseTree* parent;
-  std::vector<ParseTree*> children;
+  ParseTree *parent;
+  std::vector<ParseTree *> children;
 
-  ParseTree() {};
-  ParseTree(ParseTree *a) {this->addChild(a);}
-  ParseTree(ParseTree *a, ParseTree *b) {this->addChild(a);this->addChild(b);}
-  ParseTree(ParseTree *a, ParseTree *b, ParseTree *c) {this->addChild(a);this->addChild(b);this->addChild(c);}
-  ParseTree(ParseTree *a, ParseTree *b, ParseTree *c, ParseTree *d) {this->addChild(a);this->addChild(b);this->addChild(c);this->addChild(d);}  
-  void addChild(ParseTree *childPtr) {this->children.push_back(childPtr); if(childPtr != nullptr) childPtr->parent = this;}
+  ParseTree(){};
+  ParseTree(ParseTree *a) { this->addChild(a); }
+  ParseTree(ParseTree *a, ParseTree *b)
+  {
+    this->addChild(a);
+    this->addChild(b);
+  }
+  ParseTree(ParseTree *a, ParseTree *b, ParseTree *c)
+  {
+    this->addChild(a);
+    this->addChild(b);
+    this->addChild(c);
+  }
+  ParseTree(ParseTree *a, ParseTree *b, ParseTree *c, ParseTree *d)
+  {
+    this->addChild(a);
+    this->addChild(b);
+    this->addChild(c);
+    this->addChild(d);
+  }
+  void addChild(ParseTree *childPtr)
+  {
+    this->children.push_back(childPtr);
+    if (childPtr != nullptr)
+      childPtr->parent = this;
+  }
   void printParseTree(int l);
+  int run(int line);
 };
 
-#define YYSTYPE ParseTree*
+#define YYSTYPE ParseTree *
 
 #endif

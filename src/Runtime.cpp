@@ -1,7 +1,7 @@
 #include "Runtime.hpp"
 #include <iostream>
 
-Runtime::Runtime(Parser *parser) : parser(parser), currentLine(0)
+Runtime::Runtime(ParseTree *root) : root(root), nextLine(1), currentNode(root)
 {
   this->symbolTable = SymbolTable();
   this->callStack = CallStack();
@@ -10,13 +10,26 @@ Runtime::Runtime(Parser *parser) : parser(parser), currentLine(0)
 bool Runtime::next(int lines)
 {
   bool end = false;
-  // AST ast = NULL;
-  for (int i = 0; i < lines - 1; i++)
+  for (int i = 0; i < lines; i++)
   {
-    // ast = parse(tokens[this->currentLine]);
-    // this.currentLine = ast.run();
-    // TODO
+    end = this->runLine();
   }
+  return end;
+}
+
+bool Runtime::runLine()
+{
+  bool end = false;
+  int tag = this->currentNode->tag;
+  int numData = this->currentNode->numData;
+  double realData = this->currentNode->realData;
+  std::string wordData = this->currentNode->wordData;
+  std::vector<ParseTree *> children = this->currentNode->children;
+  switch (tokenType(tag))
+  {
+  case NUM:
+    }
+
   return end;
 }
 
