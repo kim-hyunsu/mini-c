@@ -44,7 +44,10 @@ public:
   }
   void addChild(ParseTree *childPtr)
   {
-    this->children.back()->nextSibling = childPtr;
+    if (this->children.size() > 0)
+    {
+      this->children.back()->nextSibling = childPtr;
+    }
     this->children.push_back(childPtr);
     if (childPtr != nullptr)
       childPtr->parent = this;
