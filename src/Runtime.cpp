@@ -144,7 +144,16 @@ bool Runtime::runLine()
         auto lch = ch->children[0];
         auto rch = ch->children[1];
 
-        // TODO: should call 'eval' then initialize variables
+        Value val = this->evaluate(rch);
+        void *mem;
+        if (varType->typ==TYPE_INT && val.type == INT) {
+          mem = new int();
+          this->symbolTable.addNewSymbol(ch->wordData, *varType, mem);
+        }
+        else if (varType->typ==TYPE_FLOAT && val.type == FLOAT) {
+          mem = new float();
+          this->symbolTable.addNewSymbol(ch->wordData, *varType, mem);
+        }
       }
       else {
         // no declaration
@@ -549,7 +558,7 @@ Value Runtime::evaluate(ParseTree *tree)
     {
       int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
       int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm * secondTerm;
+      value.integer = firstTerm / secondTerm;
       value.type = TYPE_INT;
     }
     else
