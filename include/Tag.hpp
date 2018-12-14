@@ -65,6 +65,8 @@ inline int tokenType(int tag) {
     case FLOAT:
     case VOID:
     case RETURN:
+    case PRINTF:
+    case PRINTFARG:
         return 0;
     case NONTERMINAL:
         return 2;
