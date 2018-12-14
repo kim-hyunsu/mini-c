@@ -8,4 +8,8 @@ int main ( ) {
   for (i = 0; i = 3; i = 7) {
     a = 3;
   }
+  int *a;
+}
+int test(float num) {
+  int a = 1;
 }

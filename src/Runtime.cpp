@@ -27,8 +27,7 @@ bool Runtime::runLine()
   std::vector<ParseTree *> children = this->currentNode->children;
   switch (tokenType(tag))
   {
-  case NUM:
-    }
+  }
 
   return end;
 }
