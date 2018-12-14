@@ -7,6 +7,7 @@
 
 #include "Token.hpp"
 #include "Tag.hpp"
+#include "TypeObject.hpp"
 
 class ParseTree
 {
@@ -50,6 +51,7 @@ public:
   bool getBoolean();
   int getInteger();
   double getReal();
+  TypeObject getType();
 };
 
 #define YYSTYPE ParseTree *

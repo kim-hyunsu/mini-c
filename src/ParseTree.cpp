@@ -47,6 +47,11 @@ bool getBoolean()
 int getInteger()
 {
 }
+
 double getReal()
+{
+}
+
+TypeObject getType()
 {
 }

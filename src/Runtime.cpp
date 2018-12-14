@@ -25,30 +25,9 @@ bool Runtime::runLine()
   double realData = this->currentNode->realData;
   std::string wordData = this->currentNode->wordData;
   std::vector<ParseTree *> children = this->currentNode->children;
-  switch (tag)
+  if (wordData == "IDtypeDeclaration")
   {
-  case NUM:
-    break;
-  case REAL:
-    break;
-  case INC:
-    break;
-  case DEC:
-    break;
-  case EQUAL:
-    break;
-  case NEQUAL:
-    break;
-  case BASIC:
-    break;
-  case IF:
-    break;
-  case ELSE:
-    break;
-  case FOR:
-    break;
-  case TEMP:
-    break;
+    // TODO
   }
 
   return end;
