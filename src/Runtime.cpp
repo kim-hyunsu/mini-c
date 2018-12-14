@@ -604,14 +604,14 @@ Value Runtime::evaluate(ParseTree *tree)
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
     {
-      value.real = lvalue.real * rvalue.real;
+      value.real = lvalue.real / rvalue.real;
       value.type = TYPE_FLOAT;
     }
     else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
     {
       int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
       int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm * secondTerm;
+      value.integer = firstTerm / secondTerm;
       value.type = TYPE_INT;
     }
     else
