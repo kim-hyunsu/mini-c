@@ -49,10 +49,11 @@ int main(int argc, char *argv[])
     int argNum = arglist.size();
     if (arglist[0].compare("next") == 0)
     {
-      if (invalidArgNum(argNum, 2) && invalidArgNum(argNum, 1))
-        continue;
       if (argNum == 1)
-        arglist[1] = "1";
+      {
+        arglist.push_back("1");
+        argNum++;
+      }
       int lines = 0;
       try
       {

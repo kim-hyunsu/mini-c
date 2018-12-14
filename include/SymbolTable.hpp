@@ -24,8 +24,8 @@ public:
   void newProcedure();
   void deleteProcedure();
   SymbolTableEntry get(int index);
-  void set(int index, Value value);
-  void setArrayEntry(int index, int arrayIndex, Value value);
+  void set(int index, Value value, int line);
+  void setArrayEntry(int index, int arrayIndex, Value value, int line);
 };
 
 #endif

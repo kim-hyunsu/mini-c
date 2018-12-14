@@ -12,9 +12,9 @@ private:
   bool assigned;
   int level;
   int procedure;
-  HistoryTable history;
 
 public:
+  HistoryTable history;
   void *variableAddress;
 
 public:

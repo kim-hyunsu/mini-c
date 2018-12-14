@@ -97,7 +97,7 @@ SymbolTableEntry SymbolTable::get(int index)
   return this->table[index];
 }
 
-void SymbolTable::set(int index, Value value)
+void SymbolTable::set(int index, Value value, int line)
 {
   SymbolTableEntry ste = this->table[index];
   if (ste.getType().typ != value.type)
@@ -108,23 +108,26 @@ void SymbolTable::set(int index, Value value)
   {
     int *addr = (int *)ste.variableAddress;
     *addr = value.integer;
+    ste.history.addEntry(line, value.integer);
     break;
   }
   case TYPE_FLOAT:
   {
     float *addr = (float *)ste.variableAddress;
     *addr = value.real;
+    ste.history.addEntry(line, value.real);
     break;
   }
   case TYPE_POINTER:
   {
     void **addr = (void **)ste.variableAddress;
     *addr = value.pointer;
+    ste.history.addEntry(line, value.pointer);
     break;
   }
   }
 }
-void SymbolTable::setArrayEntry(int index, int arrayIndex, Value value)
+void SymbolTable::setArrayEntry(int index, int arrayIndex, Value value, int line)
 {
   SymbolTableEntry ste = this->table[index];
   TypeObject type = ste.getType();
