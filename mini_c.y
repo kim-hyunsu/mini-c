@@ -59,7 +59,7 @@ return_type_declarator
 parameters
   : parameters_list   
     {$$ = $1;}  
-  | VOID      
+  | VOID
     {$$ = $1;}        
   |
     {$$ = new ParseTree();}
@@ -77,16 +77,41 @@ parameter
     {$$ = $1;}
   ;
 
+declaration 
+  : type_declarator declaration_list
+    {$1->addChild($2); $$=$1;}
+  ;
+
+declaration_list
+  : declaration_list ',' single_declaration
+    {$1->addChild($3); $$=$1;}
+  | single_declaration
+    {auto pt=new ParseTree($1); pt->tag=NONTERMINAL; pt->wordData="declaration_list"; $$=pt;}
+  ;
+
+single_declaration
+  : pointer_declaration
+    {$$ = $1;}
+  | pointer_declaration '=' expression
+    {$2->addChild($1); $2->addChild($3); $$=$2;}
+  ;
+
 ID_type_declaration
-  : type_declarator ID_declaration
+  : type_declarator pointer_declaration
     {auto pt=new ParseTree($1, $2); pt->tag=NONTERMINAL; pt->wordData="IDtypeDeclaration"; $$=pt;}     
   ;
 
 type_declarator
   : type
     {$$ = $1;}
-  | type_declarator '*'
-    {$2->addChild($1); $$=$2;}
+  ;
+
+pointer_declaration
+  : '*' pointer_declaration
+    {$1->addChild($2); $$=$1;}
+  | ID_declaration
+    {$$ = $1;}
+  ;
 
 ID_declaration
   : ID
@@ -134,13 +159,6 @@ return_statement
     {$1->addChild($2); $$=$1;}
   | RETURN ';'
     {$$=$1;}
-  ;
-
-declaration 
-  : ID_type_declaration
-    {$$ = $1;}
-  | ID_type_declaration '=' expression
-    {$2->addChild($1); $2->addChild($3); $$=$2;}
   ;
 
 assignment
