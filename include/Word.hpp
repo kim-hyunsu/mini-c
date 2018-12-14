@@ -10,6 +10,7 @@ public:
     std::string lexeme = std::string("");
     //char *lexeme = "";
     Word(std::string s, int tag) : Token(tag), lexeme(s) {};
+    Word(std::string s, int tag, int ln) : Token(tag, ln), lexeme(s) {};
     //Word(char *s, int tag): Token(tag) { lexeme = s; };
     ~Word() {};
 };

@@ -8,6 +8,7 @@ void ParseTree::printParseTree(int l)
     std::cout << " ";
   }
 
+  std::cout << this->lineNumber << " ";
   if (tokenType(this->tag) == -1)
   {
     std::cout << "|" << this->tag << ":" << (char)this->tag << " ";

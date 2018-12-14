@@ -25,8 +25,20 @@ bool Runtime::runLine()
   double realData = this->currentNode->realData;
   std::string wordData = this->currentNode->wordData;
   std::vector<ParseTree *> children = this->currentNode->children;
-  switch (tokenType(tag))
+  switch (tag)
   {
+  case NUM:
+    break;
+  case REAL:
+    break;
+  case INC:
+    break;
+  case DEC:
+    break;
+  case EQUAL:
+    break;
+  case NEQUAL:
+    break;
   }
 
   return end;

@@ -125,6 +125,15 @@ statement
     {$$ = $1;}
   | loop_statement
     {$$ = $1;}
+  | return_statement
+    {$$ = $1;}
+  ;
+
+return_statement
+  : RETURN expression ';'
+    {$1->addChild($2); $$=$1;}
+  | RETURN ';'
+    {$$=$1;}
   ;
 
 declaration 
