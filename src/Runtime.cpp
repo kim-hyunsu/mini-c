@@ -171,13 +171,17 @@ bool Runtime::runLine()
 
         Value val = this->evaluate(rch);
         void *mem;
-        if (varType->typ==TYPE_INT && val.type == INT) {
+        if (varType->typ==TYPE_INT && val.type == TYPE_INT) {
           mem = new int();
-          this->symbolTable.addNewSymbol(ch->wordData, *varType, mem);
+          this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
+          int idx = this->symbolTable.lookup(lch->wordData);
+          this->symbolTable.set(idx, val, lch->lineNumber);
         }
-        else if (varType->typ==TYPE_FLOAT && val.type == FLOAT) {
+        else if (varType->typ==TYPE_FLOAT && val.type == TYPE_FLOAT) {
           mem = new float();
-          this->symbolTable.addNewSymbol(ch->wordData, *varType, mem);
+          this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
+          int idx = this->symbolTable.lookup(lch->wordData);
+          this->symbolTable.set(idx, val, lch->lineNumber);
         }
       }
       else
@@ -267,7 +271,7 @@ bool Runtime::runLine()
     }
 
     // TODO: evaluate expression then jump
-    bool condVal = true; // = this->eval(cond);
+    Value condVal = this->evaluate(cond);
     if (condVal != 0)
     {
       this->currentNode = then;
