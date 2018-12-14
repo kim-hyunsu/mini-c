@@ -16,6 +16,7 @@ private:
 
 public:
   Runtime(ParseTree *root);
+  void findProcedures();
   bool next(int lines);
   bool runLine();
   string print(string var);
