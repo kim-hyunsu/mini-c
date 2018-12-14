@@ -1,5 +1,6 @@
 #include "Runtime.hpp"
 #include <iostream>
+#include <stdio.h>
 
 static SymbolTableEntry getSymbolTableEntry(SymbolTable *symbolTable, std::string name);
 
@@ -55,6 +56,9 @@ void Runtime::findProcedures() {
         if (ar->children.size() > 0) {
           arsize = ar->children[0]->numData;
         }
+        else {
+          std::cout << "Array size not specified at line #" << ptr->lineNumber << std::endl;
+        }
         TypeObject *newType = new TypeObject(TYPE_ARRAY);
         newType->arraySize.push_back(arsize);
         newType->baseType = paramType;
@@ -70,7 +74,25 @@ void Runtime::findProcedures() {
     std::cout << "Procedure found : " << name->wordData << " " << pr << std::endl;
 
     std::cout << functionType.printType() << std::endl;
-  }  
+  }
+}
+
+bool Runtime::findMain() {
+  int index = this->symbolTable.lookup("main");
+  switch (index)
+  {
+  case -2: // Invisible
+    std::cout << "main is invisble???" << std::endl;
+    return false;
+  case -1: // Not found
+    std::cout << "main function is not found." << std::endl;
+    return false;
+  default:
+    SymbolTableEntry ste = this->symbolTable.get(index);
+    this->currentNode = ((ParseTree*)(ste.variableAddress))->children[3];
+    std::cout << "main is at : " << ste.variableAddress << std::endl;
+    return true;
+  }
 }
 
 bool Runtime::next(int lines)
@@ -91,12 +113,198 @@ bool Runtime::runLine()
   double realData = this->currentNode->realData;
   std::string wordData = this->currentNode->wordData;
   std::vector<ParseTree *> children = this->currentNode->children;
+
+  // block entry
+  if (tag == NONTERMINAL && wordData == "statements") {
+    // make new scope & jump into block
+    this->symbolTable.newLevel();
+    this->currentNode = children[0];
+    this->runLine();
+    return false;
+  }
+
+  // declaration
+  if (tag == INT || tag == FLOAT)
+  {
+    std::cout << "Declaration." << std::endl;
+    if (this->currentNode->children.size() == 0) {
+      std::cout << "No ID at declaration." << std::endl;
+    }
+    auto list = this->currentNode->children[0];
+    if (list->children.size() == 0 ) {
+      std::cout << " No ID at declaration." << std::endl;
+    }
+    
+    for (int i = 0; i < list->children.size(); i++) {
+      auto ch = list->children[i];
+      TypeObject *varType = new TypeObject(tag==INT ? TYPE_INT : TYPE_FLOAT);
+      if (ch->tag == '=') {
+        // declaration + initialization
+        auto lch = ch->children[0];
+        auto rch = ch->children[1];
+
+        // TODO: should call 'eval' then initialize variables
+      }
+      else {
+        // no declaration
+        auto ptr = ch;
+        while (ptr->tag != ID) {
+          ptr = ptr->children[0];
+          TypeObject *newType = new TypeObject(TYPE_POINTER);
+          newType->baseType = varType;
+          varType = newType;
+        }
+        if (ptr->children.size() == 1) {
+          // array
+          auto chch = ptr->children[0];
+          TypeObject *newType = new TypeObject(TYPE_ARRAY);
+          if (chch->children.size() == 1 && chch->children[0]->tag == NUM) {
+            newType->arraySize.push_back(chch->children[0]->numData);
+          }
+          newType->baseType = varType;
+          varType = newType;
+        }
+        else {
+          // a simple declaration
+        }
+        void *mem;
+        if (varType->typ == TYPE_ARRAY) {
+          // should allocate array
+          int size = varType->arraySize[0];
+          if (varType->baseType->typ == TYPE_INT) {
+            mem = new int[size]();
+          }
+          else if (varType->baseType->typ == TYPE_FLOAT) {
+            mem = new float[size]();
+          }
+          else if (varType->baseType->typ == TYPE_POINTER) {
+            mem = new void*[size]();
+          }
+        }
+        else if (varType->typ == TYPE_POINTER) {
+          mem = new void*();
+        }
+        else if (varType->typ == TYPE_INT) {
+          mem = new int();
+        }
+        else if (varType->typ == TYPE_FLOAT) {
+          mem = new float();
+        }
+        this->symbolTable.addNewSymbol(ch->wordData, *varType, mem);
+      }
+    }
+    
+    auto nxt = nextStatement(this->currentNode);
+    if (nxt == nullptr) {
+      // TODO: should return
+    }
+    else {
+      this->currentNode = nxt;
+    }
+  }
+
+  // IF statement
+  else if (tag == IF) {
+    ParseTree *cond;
+    ParseTree *then;
+    ParseTree *els;
+
+    cond = children[0];
+    then = children[1];
+    if (children.size() == 3) {
+      els = children[2];
+    }
+
+    // TODO: evaluate expression then jump
+    bool condVal = true; // = this->eval(cond);
+    if (condVal != 0) {
+      this->currentNode = then;
+    }
+    else if (children.size() == 3) {
+      this->currentNode = els;
+    }
+    else {
+      auto nxt = nextStatement(this->currentNode);
+      if (nxt == nullptr) {
+        // TODO: should return
+      }
+      else {
+        this->currentNode = nxt;
+      }
+    }
+  }
+  else if (tag == FOR) {
+    auto init = children[0];
+    auto cond = children[1];
+    auto after = children[2];
+    auto stmt = children[3];
+  }
+  else if (tag == RETURN) {
+    auto expr = children[0];
+    // TODO: eval expression, return it
+  }
+  else if (tag == PRINTF) {
+    auto arg = children[0];
+    if (children.size() == 1) {
+      printf(arg->wordData.c_str());
+    }
+    else if (children.size() == 2) {
+      auto expr = children[1];
+      // TODO: eval expression, print it
+      printf(arg->wordData.c_str(), expr);
+    }
+
+    auto nxt = nextStatement(this->currentNode);
+    if (nxt == nullptr) {
+      // TODO: should return
+    }
+    else {
+      this->currentNode = nxt;
+    }
+  }
+  // accidentaly jumped into next procedure
+  else if (tag == NONTERMINAL && wordData == "procedure") {
+    // TODO : should return (in interpreter space) immediately
+  }
+
+  // statement is expression
+  else {
+    // reuslt = this->eval(currentNode);
+  }
+  
   if (wordData == "IDtypeDeclaration")
   {
     // TODO
   }
 
   return end;
+}
+
+ParseTree* Runtime::nextStatement(ParseTree *crnt) {
+  auto parent = crnt->parent;
+  auto sibling = crnt->nextSibling;
+
+  if (sibling != nullptr) {
+    return sibling;
+  }
+  else {
+    auto pt = crnt;
+    while (true) {
+      if (pt->nextSibling == nullptr && pt->parent != nullptr 
+            && !(pt->parent->tag == NONTERMINAL && pt->parent->wordData == "procedure")) {
+        pt = pt->parent;
+      }
+    }
+    if (pt->parent == nullptr) {
+      return nullptr;
+    }
+    if (pt->nextSibling != nullptr) {
+      return pt->nextSibling;
+    }
+    else if (pt->parent->tag == NONTERMINAL && pt->parent->wordData == "procedure") {
+      return nullptr;
+    }
+  }
 }
 
 string Runtime::print(string var)
@@ -137,83 +345,6 @@ vector<string> Runtime::trace(string var)
   return history;
 }
 
-bool Runtime::getBoolean(ParseTree *tree)
-{
-  if (tree->tag == EQUAL || tree->tag == NEQUAL)
-  {
-    if (tree->children.size() != 2)
-    {
-      throw "Invalid syntax";
-    }
-    ParseTree *left = tree->children[0];
-    ParseTree *right = tree->children[1];
-    TypeObject *type = this->getType(left);
-    if (type->typ != this->getType(right)->typ)
-    {
-      throw "Type error";
-    }
-    switch (type->typ)
-    {
-    case TYPE_INT:
-      int lvalue = this->getInteger(left);
-      int rvalue = this->getInteger(right);
-      return tree->tag == EQUAL ? lvalue == rvalue : lvalue != rvalue;
-    case TYPE_FLOAT:
-      double lvalue = this->getReal(left);
-      double rvalue = this->getReal(right);
-      return tree->tag == EQUAL ? lvalue == rvalue : lvalue != rvalue;
-    case TYPE_ARRAY:
-    case TYPE_POINTER:
-      void *lpointer = this->getPointer(left);
-      void *rpointer = this->getPointer(right);
-      return tree->tag == EQUAL ? lpointer == rpointer : lpointer != rpointer;
-    default:
-      throw "Type error";
-    }
-  }
-  else
-  {
-    throw "Type error";
-  }
-}
-
-int Runtime::getInteger(ParseTree *tree)
-{
-  switch (tree->tag)
-  {
-  case NUM:
-    return tree->numData;
-  case INC:
-  case DEC:
-    tree = tree->children[0];
-    if (tree->tag != ID)
-    {
-      throw "Type error";
-    }
-  case ID:
-    SymbolTableEntry ste = getSymbolTableEntry(&this->symbolTable, tree->wordData);
-    if (ste.getType().typ != TYPE_INT)
-    {
-      throw "Type error";
-    }
-    return *(int *)ste.variableAddress;
-    // case '+':
-    //   TypeObject *ltype = this->getType(tree->children[0]);
-    //   TypeObject *rtype = this->getType(tree->children[1]);
-  }
-}
-
-double Runtime::getReal(ParseTree *tree)
-{
-}
-
-void *Runtime::getPointer(ParseTree *tree)
-{
-}
-
-TypeObject *Runtime::getType(ParseTree *tree)
-{
-}
 
 static SymbolTableEntry getSymbolTableEntry(SymbolTable *symbolTable, std::string name)
 {

@@ -17,15 +17,14 @@ private:
 public:
   Runtime(ParseTree *root);
   void findProcedures();
+  bool findMain();
   bool next(int lines);
   bool runLine();
   string print(string var);
   vector<string> trace(string var);
-  bool getBoolean(ParseTree *tree);
-  int getInteger(ParseTree *tree);
-  double getReal(ParseTree *tree);
-  void *Runtime::getPointer(ParseTree *tree);
   TypeObject *getType(ParseTree *tree);
+
+  static ParseTree* nextStatement(ParseTree *crnt);
 };
 
 #endif

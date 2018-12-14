@@ -51,14 +51,32 @@ Token Lexer::scan()
 
     switch(peek) {
     case '\"': {
-        std::string printfStr = "\"";
+        std::string printfStr = "";
         while (true) {
             readch();
             if (peek != '\"') {
+                if (peek == '\\') {
+                    readch();
+                    if (peek == 'a') {
+                        printfStr += '\a';
+                    } 
+                    else if (peek == 'b') {
+                        printfStr += '\b';
+                    }
+                    else if (peek == 'r') {
+                        printfStr += '\r';
+                    }
+                    else if (peek == 'n') {
+                        printfStr += '\n';
+                    }
+                    else if (peek == '\\') {
+                        printfStr += '\\';
+                    }
+                    continue;
+                }
                 printfStr += peek;
             }
             else {
-                printfStr += peek;
                 readch();
                 break;
             }

@@ -24,7 +24,7 @@ int yylex();
 
 start_symbol
   : procedures
-    {root = $1;}
+    {root = $1; root->parent=nullptr; root->nextSibling=nullptr;}
   ;
 
 procedures
@@ -122,9 +122,7 @@ ID_declaration
   ;
 
 array_declaration
-  : '[' ']'
-    {auto pt=new ParseTree(); pt->tag=NONTERMINAL; pt->wordData="variable_array"; $$=pt;}      
-  | '[' NUM ']'
+  : '[' NUM ']'
     {auto pt=new ParseTree($2); pt->tag=NONTERMINAL; pt->wordData="fixed_array"; $$=pt;}      
   ;
 
@@ -158,7 +156,9 @@ statement
   ;
 
 printf_statement
-  : PRINTF '(' PRINTFARG ',' expression ')' ';'
+  : PRINTF '(' PRINTFARG ')' ';'
+    {$1->addChild($3);}
+  | PRINTF '(' PRINTFARG ',' expression ')' ';'
     {$1->addChild($3); $1->addChild($5); $$=$1;}
   ;
 
