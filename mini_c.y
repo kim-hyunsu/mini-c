@@ -107,11 +107,13 @@ statements
 statement
   : expression ';'
     {$$ = $1;}
-  | assignment ';'
-    {$$ = $1;}
   | declaration ';'
     {$$ = $1;}
   | block
+    {$$ = $1;}
+  | branch_statement
+    {$$ = $1;}
+  | loop_statement
     {$$ = $1;}
   ;
 
@@ -130,7 +132,9 @@ assignment
 expression
   : arithmetic_expr
     {$$ = $1;}
-  ; 
+  | assignment
+    {$$ = $1;}
+  ;
 
 arithmetic_expr
   : add_expr
@@ -177,6 +181,18 @@ single_expr
     {$$ = $1;}
   | '(' expression ')'
     {$$ = $2;}
+  ;
+
+branch_statement
+  : IF '(' expression ')' statement
+    {$1->addChild($3); $1->addChild($5); $$=$1;}
+  | IF '(' expression ')' statement ELSE statement
+    {$1->addChild($3); $1->addChild($5); $1->addChild($7); $$=$1;}
+  ;
+
+loop_statement
+  : FOR '(' expression ';' expression ';' expression ')' statement
+    {$1->addChild($3); $1->addChild($5); $1->addChild($7); $1->addChild($9); $$=$1;}
   ;
 
 %%
