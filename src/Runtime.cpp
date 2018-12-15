@@ -272,12 +272,14 @@ bool Runtime::runLine()
 
     // TODO: evaluate expression then jump
     Value condVal = this->evaluate(cond);
-    if (condVal != 0)
+    if (condVal.boolean)
     {
+      std::cout << "IF : then" << std::endl;
       this->currentNode = then;
     }
     else if (children.size() == 3)
     {
+      std::cout << "IF : else" << std::endl;
       this->currentNode = els;
     }
     else
