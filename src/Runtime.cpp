@@ -616,15 +616,24 @@ Value Runtime::evaluate(ParseTree *tree)
   case INC:
   {
     Value rvalue = this->evaluate(tree->children[0]);
+    value.type = rvalue.type;
     if (rvalue.type == TYPE_INT)
+    {
+      value.integer = rvalue.integer;
       rvalue.integer++;
+    }
     else if (rvalue.type == TYPE_FLOAT)
+    {
+      value.real = rvalue.real;
       rvalue.real++;
+    }
     else if (rvalue.type == TYPE_POINTER)
+    {
+      value.pointer = rvalue.pointer;
       rvalue.pointer = (int *)rvalue.pointer + 1;
+    }
     else
       throw "Type error";
-    value = rvalue;
     std::string variableName = tree->children[0]->wordData;
     int arrayIndex = 0;
     if (variableName == "subscript")
@@ -657,15 +666,24 @@ Value Runtime::evaluate(ParseTree *tree)
   case DEC:
   {
     Value rvalue = this->evaluate(tree->children[0]);
+    value.type = rvalue.type;
     if (rvalue.type == TYPE_INT)
+    {
+      value.integer = rvalue.integer;
       rvalue.integer--;
+    }
     else if (rvalue.type == TYPE_FLOAT)
+    {
+      value.real = rvalue.real;
       rvalue.real--;
+    }
     else if (rvalue.type == TYPE_POINTER)
+    {
+      value.pointer = rvalue.pointer;
       rvalue.pointer = (int *)rvalue.pointer - 1;
+    }
     else
       throw "Type error";
-    value = rvalue;
     std::string variableName = tree->children[0]->wordData;
     int arrayIndex = 0;
     if (variableName == "subscript")
