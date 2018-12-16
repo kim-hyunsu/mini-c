@@ -23,7 +23,7 @@ public:
   int getProcedure();
   bool checkName(std::string str);
   std::string getValue();
-  TypeObject getType();
+  TypeObject *getType();
   std::vector<std::string> getHistory(std::string name);
   void setAssigned(bool v);
 };

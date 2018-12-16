@@ -106,9 +106,10 @@ SymbolTableEntry SymbolTable::get(int index)
 void SymbolTable::set(int index, Value value, int line)
 {
   SymbolTableEntry *ste = &(this->table[index]);
-  if (ste->getType().typ != value.type)
+  std::cout << "SET rvalue type: " << value.type->typ << std::endl;
+  if (!isSameType(ste->getType(), value.type))
     throw "Type error";
-  switch (value.type)
+  switch (value.type->typ)
   {
   case TYPE_INT:
   {
@@ -142,12 +143,12 @@ void SymbolTable::set(int index, Value value, int line)
 void SymbolTable::setArrayEntry(int index, int arrayIndex, Value value, int line)
 {
   SymbolTableEntry *ste = &this->table[index];
-  TypeObject type = ste->getType();
-  if (type.typ != TYPE_ARRAY)
+  TypeObject *type = ste->getType();
+  if (type->typ != TYPE_ARRAY)
     throw "Type error";
-  if (type.baseType->typ != value.type)
+  if (!isSameType(type->baseType, value.type))
     throw "Type error";
-  switch (value.type)
+  switch (value.type->typ)
   {
   case TYPE_INT:
   {

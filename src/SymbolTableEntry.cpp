@@ -37,9 +37,9 @@ std::string SymbolTableEntry::getValue()
   }
 }
 
-TypeObject SymbolTableEntry::getType()
+TypeObject *SymbolTableEntry::getType()
 {
-  return this->variableType;
+  return &this->variableType;
 }
 
 std::vector<std::string> SymbolTableEntry::getHistory(std::string name)

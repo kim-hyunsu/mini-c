@@ -31,7 +31,7 @@ public:
 public:
   TypeObject(Type t);
   ~TypeObject();
-  static bool isSameType(TypeObject *a, TypeObject *b);
+  // static bool isSameType(TypeObject *a, TypeObject *b);
   static TypeObject *buildType(Type t);
   static TypeObject *buildPointer(TypeObject *baseType);
   static TypeObject *buildArray(TypeObject *baseType, std::vector<int> &arraySize);
@@ -40,5 +40,7 @@ public:
   std::string printType();
   //Type stringToType(std::string);
 };
+
+bool isSameType(TypeObject *a, TypeObject *b);
 
 #endif
