@@ -4,7 +4,7 @@ int main (int x, int y, int *z[3] ) {
   float ***b[35] = 3, c, d, *e;
   int a, b, c, d, e;
   int a = 3 * 5 - 135.7 * 12;
-  c = 3++;
+  c = a++;
   d[123];
   {
   a[3] = b[3];

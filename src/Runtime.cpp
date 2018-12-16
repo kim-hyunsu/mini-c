@@ -326,7 +326,8 @@ bool Runtime::runLine()
   // statement is expression
   else
   {
-    // reuslt = this->eval(currentNode);
+    std::cout << "evaluate: " << currentNode->tag << std::endl;
+    this->evaluate(currentNode);
   }
 
   if (wordData == "IDtypeDeclaration")
@@ -557,17 +558,17 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
+    if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
     {
-      value.real = lvalue.real + rvalue.real;
-      value.type = TYPE_FLOAT;
-    }
-    else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
-    {
-      int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
-      int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm + secondTerm;
+      value.integer = lvalue.integer + rvalue.integer;
       value.type = TYPE_INT;
+    }
+    else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+    {
+      float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+      float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+      value.real = firstTerm + secondTerm;
+      value.type = TYPE_FLOAT;
     }
     else if (lvalue.type == TYPE_POINTER && rvalue.type == TYPE_POINTER)
     {
@@ -592,17 +593,17 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
+    if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
     {
-      value.real = lvalue.real - rvalue.real;
-      value.type = TYPE_FLOAT;
-    }
-    else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
-    {
-      int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
-      int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm - secondTerm;
+      value.integer = lvalue.integer - rvalue.integer;
       value.type = TYPE_INT;
+    }
+    else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+    {
+      float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+      float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+      value.real = firstTerm - secondTerm;
+      value.type = TYPE_FLOAT;
     }
     /*
     else if (lvalue.type == TYPE_POINTER || rvalue.type == TYPE_POINTER)
@@ -625,17 +626,17 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
+    if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
     {
-      value.real = lvalue.real * rvalue.real;
-      value.type = TYPE_FLOAT;
-    }
-    else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
-    {
-      int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
-      int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm * secondTerm;
+      value.integer = lvalue.integer * rvalue.integer;
       value.type = TYPE_INT;
+    }
+    else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+    {
+      float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+      float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+      value.real = firstTerm * secondTerm;
+      value.type = TYPE_FLOAT;
     }
     else
     {
@@ -647,17 +648,17 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
+    if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
     {
-      value.real = lvalue.real / rvalue.real;
-      value.type = TYPE_FLOAT;
-    }
-    else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
-    {
-      int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
-      int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm / secondTerm;
+      value.integer = lvalue.integer / rvalue.integer;
       value.type = TYPE_INT;
+    }
+    else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+    {
+      float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+      float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+      value.real = firstTerm / secondTerm;
+      value.type = TYPE_FLOAT;
     }
     else
     {
