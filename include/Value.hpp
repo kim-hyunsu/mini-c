@@ -9,7 +9,7 @@ public:
   int integer;
   float real;
   void *pointer;
-  Type type;
+  TypeObject *type;
 };
 
 #endif
