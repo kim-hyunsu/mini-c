@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "SymbolTable.hpp"
+#include <iostream>
 
 SymbolTable::SymbolTable()
     : level(0), procedure(0)
@@ -113,6 +114,7 @@ void SymbolTable::set(int index, Value value, int line)
   {
     int *addr = (int *)ste->variableAddress;
     *addr = value.integer;
+    std::cout << "set integer: " << *addr << std::endl;
     ste->history.addEntry(line, value.integer);
     ste->setAssigned(true);
     break;
@@ -121,6 +123,7 @@ void SymbolTable::set(int index, Value value, int line)
   {
     float *addr = (float *)ste->variableAddress;
     *addr = value.real;
+    std::cout << "set float: " << *addr << std::endl;
     ste->history.addEntry(line, value.real);
     ste->setAssigned(true);
     break;
@@ -129,6 +132,7 @@ void SymbolTable::set(int index, Value value, int line)
   {
     void **addr = (void **)ste->variableAddress;
     *addr = value.pointer;
+    std::cout << "set pointer: " << *addr << std::endl;
     ste->history.addEntry(line, value.pointer);
     ste->setAssigned(true);
     break;
@@ -137,8 +141,8 @@ void SymbolTable::set(int index, Value value, int line)
 }
 void SymbolTable::setArrayEntry(int index, int arrayIndex, Value value, int line)
 {
-  SymbolTableEntry ste = this->table[index];
-  TypeObject type = ste.getType();
+  SymbolTableEntry *ste = &this->table[index];
+  TypeObject type = ste->getType();
   if (type.typ != TYPE_ARRAY)
     throw "Type error";
   if (type.baseType->typ != value.type)
@@ -147,19 +151,19 @@ void SymbolTable::setArrayEntry(int index, int arrayIndex, Value value, int line
   {
   case TYPE_INT:
   {
-    int *addr = (int *)ste.variableAddress;
+    int *addr = (int *)ste->variableAddress;
     addr[arrayIndex] = value.integer;
     break;
   }
   case TYPE_FLOAT:
   {
-    float *addr = (float *)ste.variableAddress;
+    float *addr = (float *)ste->variableAddress;
     addr[arrayIndex] = value.real;
     break;
   }
   case TYPE_POINTER:
   {
-    void **addr = (void **)ste.variableAddress;
+    void **addr = (void **)ste->variableAddress;
     addr[arrayIndex] = value.pointer;
     break;
   }

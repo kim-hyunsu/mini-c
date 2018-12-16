@@ -171,13 +171,15 @@ bool Runtime::runLine()
 
         Value val = this->evaluate(rch);
         void *mem;
-        if (varType->typ==TYPE_INT && val.type == TYPE_INT) {
+        if (varType->typ == TYPE_INT && val.type == TYPE_INT)
+        {
           mem = new int();
           this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
           int idx = this->symbolTable.lookup(lch->wordData);
           this->symbolTable.set(idx, val, lch->lineNumber);
         }
-        else if (varType->typ==TYPE_FLOAT && val.type == TYPE_FLOAT) {
+        else if (varType->typ == TYPE_FLOAT && val.type == TYPE_FLOAT)
+        {
           mem = new float();
           this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
           int idx = this->symbolTable.lookup(lch->wordData);
@@ -357,7 +359,16 @@ bool Runtime::runLine()
   // statement is expression
   else
   {
-    // reuslt = this->eval(currentNode);
+    this->evaluate(currentNode);
+    auto nxt = nextStatement(this->currentNode);
+    if (nxt == nullptr)
+    {
+      // TODO: should return
+    }
+    else
+    {
+      this->currentNode = nxt;
+    }
   }
 
   if (wordData == "IDtypeDeclaration")
@@ -445,6 +456,7 @@ ParseTree *Runtime::nextStatement(ParseTree *crnt)
 string Runtime::print(string var)
 {
   string value;
+  std::cout << "print: " << var << std::endl;
   int index = this->symbolTable.lookup(var);
   switch (index)
   {
@@ -482,11 +494,13 @@ vector<string> Runtime::trace(string var)
 
 Value Runtime::evaluate(ParseTree *tree)
 {
+  std::cout << "evaluate: ";
   Value value = Value();
   switch (tree->tag)
   {
   case EQUAL:
   {
+    std::cout << "==" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type != rvalue.type)
@@ -513,6 +527,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case NEQUAL:
   {
+    std::cout << "!=" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type != rvalue.type)
@@ -537,20 +552,77 @@ Value Runtime::evaluate(ParseTree *tree)
     value.type = TYPE_BOOL;
     break;
   }
+  case '<':
+  {
+    std::cout << "<" << std::endl;
+    Value lvalue = this->evaluate(tree->children[0]);
+    Value rvalue = this->evaluate(tree->children[1]);
+    if (lvalue.type != rvalue.type)
+    {
+      throw "Type error";
+    }
+    switch (lvalue.type)
+    {
+    case TYPE_BOOL:
+      value.boolean = lvalue.boolean < rvalue.boolean;
+      break;
+    case TYPE_INT:
+      value.boolean = lvalue.integer < rvalue.integer;
+      break;
+    case TYPE_FLOAT:
+      value.boolean = lvalue.real < rvalue.real;
+      break;
+    case TYPE_POINTER:
+      value.boolean = lvalue.pointer < rvalue.pointer;
+      break;
+    }
+    value.type = TYPE_BOOL;
+    break;
+  }
+  case '>':
+  {
+    std::cout << ">" << std::endl;
+    Value lvalue = this->evaluate(tree->children[0]);
+    Value rvalue = this->evaluate(tree->children[1]);
+    if (lvalue.type != rvalue.type)
+    {
+      throw "Type error";
+    }
+    switch (lvalue.type)
+    {
+    case TYPE_BOOL:
+      value.boolean = lvalue.boolean > rvalue.boolean;
+      break;
+    case TYPE_INT:
+      value.boolean = lvalue.integer > rvalue.integer;
+      break;
+    case TYPE_FLOAT:
+      value.boolean = lvalue.real > rvalue.real;
+      break;
+    case TYPE_POINTER:
+      value.boolean = lvalue.pointer > rvalue.pointer;
+      break;
+    }
+    value.type = TYPE_BOOL;
+    break;
+  }
   case NUM:
   {
+    std::cout << tree->numData << std::endl;
     value.integer = tree->numData;
     value.type = TYPE_INT;
     break;
   }
   case REAL:
   {
+    std::cout << tree->realData << std::endl;
     value.real = tree->realData;
     value.type = TYPE_FLOAT;
     break;
   }
   case ID:
   {
+    std::cout << tree->wordData << std::endl;
     SymbolTableEntry ste = getSymbolTableEntry(&this->symbolTable, tree->wordData);
     switch (ste.getType().typ)
     {
@@ -574,19 +646,20 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '+':
   {
+    std::cout << "+" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
+    if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
     {
-      value.real = lvalue.real + rvalue.real;
-      value.type = TYPE_FLOAT;
-    }
-    else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
-    {
-      int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
-      int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm + secondTerm;
+      value.integer = lvalue.integer + rvalue.integer;
       value.type = TYPE_INT;
+    }
+    else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+    {
+      float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+      float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+      value.real = firstTerm + secondTerm;
+      value.type = TYPE_FLOAT;
     }
     else if (lvalue.type == TYPE_POINTER && rvalue.type == TYPE_POINTER)
     {
@@ -609,19 +682,20 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '-':
   {
+    std::cout << "-" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
+    if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
     {
-      value.real = lvalue.real - rvalue.real;
-      value.type = TYPE_FLOAT;
-    }
-    else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
-    {
-      int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
-      int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm - secondTerm;
+      value.integer = lvalue.integer - rvalue.integer;
       value.type = TYPE_INT;
+    }
+    else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+    {
+      float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+      float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+      value.real = firstTerm - secondTerm;
+      value.type = TYPE_FLOAT;
     }
     /*
     else if (lvalue.type == TYPE_POINTER || rvalue.type == TYPE_POINTER)
@@ -642,41 +716,62 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '*':
   {
-    Value lvalue = this->evaluate(tree->children[0]);
-    Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
+    if (tree->children.size() == 2)
     {
-      value.real = lvalue.real * rvalue.real;
-      value.type = TYPE_FLOAT;
+      std::cout << "*(times)" << std::endl;
+      Value lvalue = this->evaluate(tree->children[0]);
+      Value rvalue = this->evaluate(tree->children[1]);
+      if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
+      {
+        value.integer = lvalue.integer * rvalue.integer;
+        value.type = TYPE_INT;
+      }
+      else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+      {
+        float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+        float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+        value.real = firstTerm * secondTerm;
+        value.type = TYPE_FLOAT;
+      }
+      else
+      {
+        throw "type error";
+      }
     }
-    else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
+    else if (tree->children.size() == 1)
     {
-      int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
-      int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm * secondTerm;
+      std::cout << "*(pointer)" << std::endl;
+      Value rvalue = this->evaluate(tree->children[0]);
+      if (rvalue.type != TYPE_POINTER)
+      {
+        throw "Type error";
+      }
       value.type = TYPE_INT;
+      value.integer = *(int *)rvalue.pointer;
+      break;
     }
     else
     {
-      throw "type error";
+      throw "Type error";
     }
     break;
   }
   case '/':
   {
+    std::cout << "/" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_FLOAT && rvalue.type == TYPE_FLOAT)
+    if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
     {
-      value.real = lvalue.real / rvalue.real;
-      value.type = TYPE_FLOAT;
-    }
-    else if (lvalue.type == TYPE_INT || rvalue.type == TYPE_INT)
-    {
-      int firstTerm = lvalue.type == TYPE_FLOAT ? (int)lvalue.real : lvalue.integer;
-      int secondTerm = rvalue.type == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
-      value.integer = firstTerm / secondTerm;
+      value.integer = lvalue.integer / rvalue.integer;
       value.type = TYPE_INT;
+    }
+    else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+    {
+      float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+      float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+      value.real = firstTerm / secondTerm;
+      value.type = TYPE_FLOAT;
     }
     else
     {
@@ -686,16 +781,26 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case INC:
   {
+    std::cout << "++" << std::endl;
     Value rvalue = this->evaluate(tree->children[0]);
+    value.type = rvalue.type;
     if (rvalue.type == TYPE_INT)
+    {
+      value.integer = rvalue.integer;
       rvalue.integer++;
+    }
     else if (rvalue.type == TYPE_FLOAT)
+    {
+      value.real = rvalue.real;
       rvalue.real++;
+    }
     else if (rvalue.type == TYPE_POINTER)
+    {
+      value.pointer = rvalue.pointer;
       rvalue.pointer = (int *)rvalue.pointer + 1;
+    }
     else
       throw "Type error";
-    value = rvalue;
     std::string variableName = tree->children[0]->wordData;
     int arrayIndex = 0;
     if (variableName == "subscript")
@@ -727,16 +832,26 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case DEC:
   {
+    std::cout << "--" << std::endl;
     Value rvalue = this->evaluate(tree->children[0]);
+    value.type = rvalue.type;
     if (rvalue.type == TYPE_INT)
+    {
+      value.integer = rvalue.integer;
       rvalue.integer--;
+    }
     else if (rvalue.type == TYPE_FLOAT)
+    {
+      value.real = rvalue.real;
       rvalue.real--;
+    }
     else if (rvalue.type == TYPE_POINTER)
+    {
+      value.pointer = rvalue.pointer;
       rvalue.pointer = (int *)rvalue.pointer - 1;
+    }
     else
       throw "Type error";
-    value = rvalue;
     std::string variableName = tree->children[0]->wordData;
     int arrayIndex = 0;
     if (variableName == "subscript")
@@ -768,6 +883,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '=':
   {
+    std::cout << "=" << std::endl;
     Value rvalue = this->evaluate(tree->children[1]);
     std::string variableName = tree->children[0]->wordData;
     int arrayIndex = 0;
@@ -802,6 +918,7 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     if (tree->wordData == "subscript")
     {
+      std::cout << "[]" << std::endl;
       ParseTree *ltree = tree->children[0];
       ParseTree *rtree = tree->children[1];
       Value arrayIndex = this->evaluate(rtree);
@@ -827,6 +944,7 @@ Value Runtime::evaluate(ParseTree *tree)
         throw "Type error";
       }
     }
+    throw "Type error";
   }
   }
   return value;
