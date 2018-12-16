@@ -379,10 +379,12 @@ bool Runtime::runLine()
 
     if (condVal.boolean)
     {
+      std::cout << "for loop" << std::endl;
       this->currentNode = stmt;
     }
     else
     {
+      std::cout << "for loop end" << std::endl;
       this->currentNode = nextStatement(this->currentNode);
     }
   }
@@ -418,6 +420,7 @@ bool Runtime::runLine()
     this->currentNode = returnInfo.first;
     this->symbolTable.deleteProcedure(returnInfo.second);
   }
+
   else if (tag == PRINTF)
   {
     auto arg = children[0];
@@ -610,10 +613,10 @@ Value Runtime::evaluate(ParseTree *tree)
     if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
     if (functionCall == true) return Value();
-    if (!isSameType(lvalue.type, rvalue.type))
-    {
-      throw "Type error";
-    }
+    //if (!isSameType(lvalue.type, rvalue.type))
+    //{
+    //  throw "Type error";
+    //}
     switch (lvalue.type->typ)
     {
     case TYPE_BOOL:
@@ -640,10 +643,10 @@ Value Runtime::evaluate(ParseTree *tree)
     if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
     if (functionCall == true) return Value();
-    if (!isSameType(lvalue.type, rvalue.type))
-    {
-      throw "Type error";
-    }
+    //if (!isSameType(lvalue.type, rvalue.type))
+    //{
+    //  throw "Type error";
+    //}
     switch (lvalue.type->typ)
     {
     case TYPE_BOOL:
@@ -670,10 +673,10 @@ Value Runtime::evaluate(ParseTree *tree)
     if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
     if (functionCall == true) return Value();
-    if (!isSameType(lvalue.type, rvalue.type))
-    {
-      throw "Type error";
-    }
+    //if (!isSameType(lvalue.type, rvalue.type))
+    //{
+    //  throw "Type error";
+    //}
     switch (lvalue.type->typ)
     {
     case TYPE_BOOL:
@@ -700,10 +703,10 @@ Value Runtime::evaluate(ParseTree *tree)
     if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
     if (functionCall == true) return Value();
-    if (!isSameType(lvalue.type, rvalue.type))
-    {
-      throw "Type error";
-    }
+    //if (!isSameType(lvalue.type, rvalue.type))
+    //{
+    //  throw "Type error";
+    //}
     switch (lvalue.type->typ)
     {
     case TYPE_BOOL:
@@ -1187,9 +1190,14 @@ Value Runtime::evaluate(ParseTree *tree)
             val.type->typ = TYPE_FLOAT;
             val.real = (float)val.integer;
           }
-          else
+          else if (funcParameterTypes[i]->typ == TYPE_POINTER && val.type->typ == TYPE_ARRAY)
+          {
+            val.type->typ = TYPE_POINTER;
+          }
+          else 
           {
             std::cout << "function parameter type does not match" << std::endl;
+
           }
         }
         argVals.push_back(val);
@@ -1240,7 +1248,7 @@ Value Runtime::evaluate(ParseTree *tree)
         int index = this->symbolTable.lookup(parameterID);
         this->symbolTable.set(index, argVals[i], pr->lineNumber);
       }
-      std::cout << "function call : " << funcTree->wordData << " : parameters allocated." << std::endl;
+      std::cout << "function call : " << funcTree->wordData << " : " << argVals.size() << " parameters allocated." << std::endl;
 
       // put current node into call stack
       this->callStack.addEntry(std::pair<ParseTree*, int>(this->currentNode, this->symbolTable.currentLevel()));

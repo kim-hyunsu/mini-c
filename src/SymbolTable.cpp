@@ -21,7 +21,7 @@ int SymbolTable::lookup(std::string name)
   {
     if (this->table[i].checkName(name))
     {
-      if (this->table[i].getProcedure() == this->procedure)
+      if (this->table[i].getProcedure() == this->procedure || this->table[i].getType()->typ == TYPE_FUNCTION)
       {
         return i;
       }
@@ -49,6 +49,7 @@ void SymbolTable::newLevel()
 void SymbolTable::newProcedure()
 {
   std::cout << "SymbolTable : new procedure : " << this->procedure + 1 << std::endl;
+  this->level = 0;
   this->procedure += 1;
 }
 
