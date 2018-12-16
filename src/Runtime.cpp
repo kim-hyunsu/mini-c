@@ -119,9 +119,16 @@ bool Runtime::findMain()
 bool Runtime::next(int lines)
 {
   bool end = false;
-  for (int i = 0; i < lines; i++)
+  try
   {
-    end = this->runLine();
+    for (int i = 0; i < lines; i++)
+    {
+      end = this->runLine();
+    }
+  }
+  catch (exception &e)
+  {
+    std::cout << "ERROR!" << std::endl;
   }
   return end;
 }
@@ -669,15 +676,17 @@ Value Runtime::evaluate(ParseTree *tree)
     std::cout << tree->wordData << std::endl;
     SymbolTableEntry *ste = getSymbolTableEntry(&this->symbolTable, tree->wordData);
     TypeObject *type = ste->getType();
+    value.type = type;
+    value.ste = ste;
+    value.line = tree->lineNumber;
+    value.address = ste->variableAddress;
     switch (type->typ)
     {
     case TYPE_INT:
       value.integer = *(int *)ste->variableAddress;
-      value.type = type;
       break;
     case TYPE_FLOAT:
       value.real = *(float *)ste->variableAddress;
-      value.type = type;
       break;
     case TYPE_POINTER:
     case TYPE_ARRAY:
@@ -792,6 +801,9 @@ Value Runtime::evaluate(ParseTree *tree)
         throw "Type error";
       }
       value.type = rvalue.type->baseType;
+      value.line = rvalue.line;
+      value.ste = rvalue.ste;
+      value.address = rvalue.pointer;
       switch (value.type->typ)
       {
       case TYPE_INT:
@@ -807,7 +819,6 @@ Value Runtime::evaluate(ParseTree *tree)
       default:
         throw "Type error";
       }
-      break;
     }
     else
     {
@@ -876,32 +887,33 @@ Value Runtime::evaluate(ParseTree *tree)
     {
       throw "Type error";
     }
-    std::string variableName = tree->children[0]->wordData;
-    int arrayIndex = 0;
-    if (variableName == "subscript")
+    switch (rvalue.type->typ)
     {
-      ParseTree *ltree = tree->children[0];
-      ParseTree *rtree = tree->children[1];
-      Value arrayIndexValue = this->evaluate(rtree);
-      if (ltree->tag != ID || arrayIndexValue.type->typ != TYPE_INT)
-      {
-        throw "type error";
-      }
-      variableName = ltree->wordData;
-      int line = ltree->lineNumber;
-      arrayIndex = arrayIndexValue.integer;
-      int index = this->symbolTable.lookup(variableName);
-      if (index < 0)
-        throw "Not declared";
-      this->symbolTable.setArrayEntry(index, arrayIndex, rvalue, line);
+    case TYPE_INT:
+    {
+      int *addr = (int *)rvalue.address;
+      *addr = rvalue.integer;
+      rvalue.ste->history.addEntry(rvalue.line, rvalue.integer);
+      rvalue.ste->setAssigned(true);
+      break;
     }
-    else
+    case TYPE_FLOAT:
     {
-      int index = this->symbolTable.lookup(variableName);
-      int line = tree->children[0]->lineNumber;
-      if (index < 0)
-        throw "Not declared";
-      this->symbolTable.set(index, rvalue, line);
+      float *addr = (float *)rvalue.address;
+      *addr = rvalue.real;
+      rvalue.ste->history.addEntry(rvalue.line, rvalue.real);
+      rvalue.ste->setAssigned(true);
+      break;
+    }
+    case TYPE_POINTER:
+    case TYPE_ARRAY:
+    {
+      void **addr = (void **)rvalue.address;
+      *addr = rvalue.pointer;
+      rvalue.ste->history.addEntry(rvalue.line, rvalue.pointer);
+      rvalue.ste->setAssigned(true);
+      break;
+    }
     }
     break;
   }
@@ -943,65 +955,72 @@ Value Runtime::evaluate(ParseTree *tree)
     {
       throw "Type error";
     }
-    std::string variableName = tree->children[0]->wordData;
-    int arrayIndex = 0;
-    if (variableName == "subscript")
+    switch (rvalue.type->typ)
     {
-      ParseTree *ltree = tree->children[0];
-      ParseTree *rtree = tree->children[1];
-      Value arrayIndexValue = this->evaluate(rtree);
-      if (ltree->tag != ID || arrayIndexValue.type->typ != TYPE_INT)
-      {
-        throw "type error";
-      }
-      variableName = ltree->wordData;
-      int line = ltree->lineNumber;
-      arrayIndex = arrayIndexValue.integer;
-      int index = this->symbolTable.lookup(variableName);
-      if (index < 0)
-        throw "Not declared";
-      this->symbolTable.setArrayEntry(index, arrayIndex, rvalue, line);
+    case TYPE_INT:
+    {
+      int *addr = (int *)rvalue.address;
+      *addr = rvalue.integer;
+      rvalue.ste->history.addEntry(rvalue.line, rvalue.integer);
+      rvalue.ste->setAssigned(true);
+      break;
     }
-    else
+    case TYPE_FLOAT:
     {
-      int index = this->symbolTable.lookup(variableName);
-      int line = tree->children[0]->lineNumber;
-      if (index < 0)
-        throw "Not declared";
-      this->symbolTable.set(index, rvalue, line);
+      float *addr = (float *)rvalue.address;
+      *addr = rvalue.real;
+      rvalue.ste->history.addEntry(rvalue.line, rvalue.real);
+      rvalue.ste->setAssigned(true);
+      break;
+    }
+    case TYPE_POINTER:
+    case TYPE_ARRAY:
+    {
+      void **addr = (void **)rvalue.address;
+      *addr = rvalue.pointer;
+      rvalue.ste->history.addEntry(rvalue.line, rvalue.pointer);
+      rvalue.ste->setAssigned(true);
+      break;
+    }
     }
     break;
   }
   case '=':
   {
     std::cout << "=" << std::endl;
+    Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    std::string variableName = tree->children[0]->wordData;
-    int arrayIndex = 0;
-    if (variableName == "subscript")
+    // if (!isSameType(lvalue.type, rvalue.type))
+    // {
+    //   throw "Type error";
+    // }
+    switch (lvalue.type->typ)
     {
-      ParseTree *ltree = tree->children[0];
-      ParseTree *rtree = tree->children[1];
-      Value arrayIndexValue = this->evaluate(rtree);
-      if (ltree->tag != ID || arrayIndexValue.type->typ != TYPE_INT)
-      {
-        throw "type error";
-      }
-      variableName = ltree->wordData;
-      int line = ltree->lineNumber;
-      arrayIndex = arrayIndexValue.integer;
-      int index = this->symbolTable.lookup(variableName);
-      if (index < 0)
-        throw "Not declared";
-      this->symbolTable.setArrayEntry(index, arrayIndex, rvalue, line);
+    case TYPE_INT:
+    {
+      int *addr = (int *)lvalue.address;
+      *addr = rvalue.integer;
+      lvalue.ste->history.addEntry(lvalue.line, rvalue.integer);
+      lvalue.ste->setAssigned(true);
+      break;
     }
-    else
+    case TYPE_FLOAT:
     {
-      int index = this->symbolTable.lookup(variableName);
-      int line = tree->children[0]->lineNumber;
-      if (index < 0)
-        throw "Not declared";
-      this->symbolTable.set(index, rvalue, line);
+      float *addr = (float *)lvalue.address;
+      *addr = rvalue.real;
+      lvalue.ste->history.addEntry(lvalue.line, rvalue.real);
+      lvalue.ste->setAssigned(true);
+      break;
+    }
+    case TYPE_POINTER:
+    case TYPE_ARRAY:
+    {
+      void **addr = (void **)lvalue.address;
+      *addr = rvalue.pointer;
+      lvalue.ste->history.addEntry(lvalue.line, rvalue.pointer);
+      lvalue.ste->setAssigned(true);
+      break;
+    }
     }
     break;
     *(int*)(0x0) = 7;
@@ -1011,27 +1030,29 @@ Value Runtime::evaluate(ParseTree *tree)
     if (tree->wordData == "subscript")
     {
       std::cout << "[]" << std::endl;
-      ParseTree *ltree = tree->children[0];
-      ParseTree *rtree = tree->children[1];
-      Value arrayIndex = this->evaluate(rtree);
-      if (ltree->tag != ID || arrayIndex.type->typ != TYPE_INT)
-        throw "type error";
-      SymbolTableEntry *ste = getSymbolTableEntry(&this->symbolTable, ltree->wordData);
-      TypeObject *type = ste->getType();
-      if (type->typ != TYPE_ARRAY)
-        throw "type error";
-      value.type = type->baseType;
+      Value lvalue = this->evaluate(tree->children[0]);
+      Value rvalue = this->evaluate(tree->children[1]);
+      if (rvalue.type->typ != TYPE_INT)
+        throw "Type error";
+      // if (lvalue.type->typ != TYPE_ARRAY)
+      //   throw "Type error";
+      value.type = lvalue.type->baseType;
+      value.line = lvalue.line;
+      value.ste = lvalue.ste;
       switch (value.type->typ)
       {
       case TYPE_INT:
-        value.integer = ((int *)ste->variableAddress)[arrayIndex.integer];
+        value.integer = ((int *)lvalue.ste->variableAddress)[rvalue.integer];
+        value.address = &((int *)lvalue.ste->variableAddress)[rvalue.integer];
         break;
       case TYPE_FLOAT:
-        value.real = ((float *)ste->variableAddress)[arrayIndex.integer];
+        value.real = ((float *)lvalue.ste->variableAddress)[rvalue.integer];
+        value.address = &((float *)lvalue.ste->variableAddress)[rvalue.integer];
         break;
       case TYPE_POINTER:
       case TYPE_ARRAY:
-        value.pointer = ((void **)ste->variableAddress)[arrayIndex.integer];
+        value.pointer = ((void **)lvalue.ste->variableAddress)[rvalue.integer];
+        value.address = &((void **)lvalue.ste->variableAddress)[rvalue.integer];
         break;
       default:
         throw "Type error";

@@ -139,6 +139,7 @@ void SymbolTable::set(int index, Value value, int line)
   }
   }
 }
+
 void SymbolTable::setArrayEntry(int index, int arrayIndex, Value value, int line)
 {
   SymbolTableEntry *ste = &this->table[index];
