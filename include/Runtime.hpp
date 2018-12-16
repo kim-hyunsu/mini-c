@@ -14,6 +14,7 @@ private:
   CallStack callStack;
   int nextLine;
   ParseTree *currentNode;
+  bool forBlockEnd = false; // true only immediately after in-loop block ends
 
 public:
   Runtime(ParseTree *root);
@@ -24,7 +25,8 @@ public:
   string print(string var);
   vector<string> trace(string var);
 
-  static ParseTree *nextStatement(ParseTree *crnt);
+  ParseTree *nextStatement(ParseTree *crnt);
+
   Value evaluate(ParseTree *tree);
 };
 
