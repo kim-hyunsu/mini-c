@@ -171,13 +171,15 @@ bool Runtime::runLine()
 
         Value val = this->evaluate(rch);
         void *mem;
-        if (varType->typ==TYPE_INT && val.type == TYPE_INT) {
+        if (varType->typ == TYPE_INT && val.type == TYPE_INT)
+        {
           mem = new int();
           this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
           int idx = this->symbolTable.lookup(lch->wordData);
           this->symbolTable.set(idx, val, lch->lineNumber);
         }
-        else if (varType->typ==TYPE_FLOAT && val.type == TYPE_FLOAT) {
+        else if (varType->typ == TYPE_FLOAT && val.type == TYPE_FLOAT)
+        {
           mem = new float();
           this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
           int idx = this->symbolTable.lookup(lch->wordData);
@@ -342,6 +344,15 @@ bool Runtime::runLine()
   else
   {
     this->evaluate(currentNode);
+    auto nxt = nextStatement(this->currentNode);
+    if (nxt == nullptr)
+    {
+      // TODO: should return
+    }
+    else
+    {
+      this->currentNode = nxt;
+    }
   }
 
   if (wordData == "IDtypeDeclaration")
@@ -548,7 +559,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case REAL:
   {
-    std::cout << tree->numData << std::endl;
+    std::cout << tree->realData << std::endl;
     value.real = tree->realData;
     value.type = TYPE_FLOAT;
     break;

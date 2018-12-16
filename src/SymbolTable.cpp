@@ -136,8 +136,8 @@ void SymbolTable::set(int index, Value value, int line)
 }
 void SymbolTable::setArrayEntry(int index, int arrayIndex, Value value, int line)
 {
-  SymbolTableEntry ste = this->table[index];
-  TypeObject type = ste.getType();
+  SymbolTableEntry *ste = &this->table[index];
+  TypeObject type = ste->getType();
   if (type.typ != TYPE_ARRAY)
     throw "Type error";
   if (type.baseType->typ != value.type)
@@ -146,19 +146,19 @@ void SymbolTable::setArrayEntry(int index, int arrayIndex, Value value, int line
   {
   case TYPE_INT:
   {
-    int *addr = (int *)ste.variableAddress;
+    int *addr = (int *)ste->variableAddress;
     addr[arrayIndex] = value.integer;
     break;
   }
   case TYPE_FLOAT:
   {
-    float *addr = (float *)ste.variableAddress;
+    float *addr = (float *)ste->variableAddress;
     addr[arrayIndex] = value.real;
     break;
   }
   case TYPE_POINTER:
   {
-    void **addr = (void **)ste.variableAddress;
+    void **addr = (void **)ste->variableAddress;
     addr[arrayIndex] = value.pointer;
     break;
   }
