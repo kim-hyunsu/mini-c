@@ -311,19 +311,23 @@ bool Runtime::runLine()
     auto after = children[2];
     auto stmt = children[3];
 
-    if (!forBlockEnd) {
+    if (!forBlockEnd)
+    {
       Value initVal = this->evaluate(init);
     }
-    else {
+    else
+    {
       Value afterVal = this->evaluate(after);
       forBlockEnd = false;
     }
     Value condVal = this->evaluate(cond);
 
-    if (condVal.boolean) {
+    if (condVal.boolean)
+    {
       this->currentNode = stmt;
     }
-    else {
+    else
+    {
       this->currentNode = nextStatement(this->currentNode);
     }
   }
@@ -390,45 +394,58 @@ ParseTree *Runtime::nextStatement(ParseTree *crnt)
 {
   auto parent = crnt->parent;
   auto sibling = crnt->nextSibling;
-  
-  if (parent == nullptr) {
+
+  if (parent == nullptr)
+  {
     std::cout << "nextStatement called from root! something is very wrong." << std::endl;
   }
-  else {
+  else
+  {
     auto ptag = parent->tag;
-    switch (ptag) {
-      case NONTERMINAL: {
-        std::string pname = parent->wordData;
-        if (pname == "statements") {
-          if (sibling != nullptr) {
-            return sibling;
-          }
-          else {
-            this->symbolTable.deleteLevel();
-            return nextStatement(parent);
-          }
+    switch (ptag)
+    {
+    case NONTERMINAL:
+    {
+      std::string pname = parent->wordData;
+      if (pname == "statements")
+      {
+        if (sibling != nullptr)
+        {
+          return sibling;
         }
-      }
-      case IF: {
-        if (crnt == parent->children[1]) {
-          // this is then block's end
-          if (parent->children.size() == 3) {
-            // return else block
-            return sibling;
-          }
-          else {
-            return nextStatement(parent);
-          }
-        }
-        else {
-          // this is else block's end
+        else
+        {
+          this->symbolTable.deleteLevel();
           return nextStatement(parent);
         }
       }
-      case FOR: {
-        this->forBlockEnd = true;
-        return parent;
+    }
+    case IF:
+    {
+      if (crnt == parent->children[1])
+      {
+        // this is then block's end
+        if (parent->children.size() == 3)
+        {
+          // return else block
+          return sibling;
+        }
+        else
+        {
+          return nextStatement(parent);
+        }
       }
+      else
+      {
+        // this is else block's end
+        return nextStatement(parent);
+      }
+    }
+    case FOR:
+    {
+      this->forBlockEnd = true;
+      return parent;
+    }
     }
   }
   if (sibling != nullptr)
