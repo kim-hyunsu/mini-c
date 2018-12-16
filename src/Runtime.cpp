@@ -135,6 +135,7 @@ bool Runtime::next(int lines)
 
 bool Runtime::runLine()
 {
+  if (functionCall == true) functionCall = false;
   bool end = false;
   int tag = this->currentNode->tag;
   int numData = this->currentNode->numData;
@@ -149,7 +150,7 @@ bool Runtime::runLine()
     this->symbolTable.newLevel();
     this->currentNode = children[0];
     this->runLine();
-    return false;
+    return end;
   }
 
   // declaration
@@ -177,6 +178,7 @@ bool Runtime::runLine()
         auto rch = ch->children[1];
 
         Value rval = this->evaluate(rch);
+        if (functionCall == true) return false;
 
         auto ptr = lch;
         while (ptr->tag != ID)
@@ -236,8 +238,8 @@ bool Runtime::runLine()
             rval.type->typ = TYPE_FLOAT;
             rval.real = (float)rval.integer;
           }
-
           else {
+            std::cout << "initialization type mismatch" << std::endl;
           }
         }
         this->symbolTable.set(idx, rval, lch->lineNumber);
@@ -327,6 +329,8 @@ bool Runtime::runLine()
 
     // TODO: evaluate expression then jump
     Value condVal = this->evaluate(cond);
+    if (functionCall == true) return false;
+
     if (condVal.boolean)
     {
       std::cout << "IF : then" << std::endl;
@@ -359,12 +363,15 @@ bool Runtime::runLine()
 
     if (!forBlockEnd) {
       Value initVal = this->evaluate(init);
+      if (functionCall == true) return false;
     }
     else {
       Value afterVal = this->evaluate(after);
+      if (functionCall == true) return false;
       forBlockEnd = false;
     }
     Value condVal = this->evaluate(cond);
+    if (functionCall == true) return false;
 
     if (condVal.boolean) {
       this->currentNode = stmt;
@@ -376,7 +383,34 @@ bool Runtime::runLine()
   else if (tag == RETURN)
   {
     auto expr = children[0];
-    // TODO: eval expression, return it
+    Value returnVal = this->evaluate(expr);
+    if (functionCall == true) return false;
+    auto function = this->currentNode;
+
+    // find returnType
+    while (!(function->tag == NONTERMINAL && function->wordData == "procedure")) {
+      function = function->parent;
+    }
+    auto functionName = function->children[1]->wordData;
+    int index = this->symbolTable.lookup(functionName);
+    auto ste = this->symbolTable.get(index);
+    auto returnType = ste->getType()->returnType;
+    if (!isSameType(returnType, returnVal.type)) {
+      if (returnType->typ == TYPE_FLOAT && returnVal.type->typ == TYPE_INT) {
+        returnVal.type->typ = TYPE_FLOAT;
+        returnVal.real = (float)returnVal.integer;
+      }
+      else {
+        std::cout << "return type does not match" << std::endl;
+        throw "type error";
+      }
+    }
+
+    this->returnValue = returnVal;
+    this->returned = true;
+    auto returnInfo = this->callStack.deleteEntry();
+    this->currentNode = returnInfo.first;
+    this->symbolTable.deleteProcedure(returnInfo.second);
   }
   else if (tag == PRINTF)
   {
@@ -390,6 +424,7 @@ bool Runtime::runLine()
       auto expr = children[1];
       // TODO: eval expression, print it
       Value v = this->evaluate(expr);
+      if (functionCall == true) return false;
       printf(arg->wordData.c_str(), v.integer);
     }
 
@@ -413,6 +448,7 @@ bool Runtime::runLine()
   else
   {
     this->evaluate(currentNode);
+    if (functionCall == true) return false;
     auto nxt = nextStatement(this->currentNode);
     if (nxt == nullptr)
     {
@@ -429,6 +465,7 @@ bool Runtime::runLine()
     // TODO
   }
 
+  ParseTree::clearTempValue(this->currentNode);
   return end;
 }
 
@@ -541,6 +578,10 @@ vector<string> Runtime::trace(string var)
 
 Value Runtime::evaluate(ParseTree *tree)
 {
+  if (tree->evaluated) {
+    std::cout << "already evaluated" << std::endl;
+    return tree->value;
+  }
   std::cout << "evaluate: ";
   Value value;
   switch (tree->tag)
@@ -549,7 +590,9 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "==" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
+    if (functionCall == true) return Value();
     if (!isSameType(lvalue.type, rvalue.type))
     {
       throw "Type error";
@@ -577,7 +620,9 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "!=" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
+    if (functionCall == true) return Value();
     if (!isSameType(lvalue.type, rvalue.type))
     {
       throw "Type error";
@@ -605,7 +650,9 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "<" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
+    if (functionCall == true) return Value();
     if (!isSameType(lvalue.type, rvalue.type))
     {
       throw "Type error";
@@ -633,7 +680,9 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << ">" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
+    if (functionCall == true) return Value();
     if (!isSameType(lvalue.type, rvalue.type))
     {
       throw "Type error";
@@ -702,7 +751,9 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "+" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
+    if (functionCall == true) return Value();
     if (lvalue.type->typ == TYPE_INT && rvalue.type->typ == TYPE_INT)
     {
       value.integer = lvalue.integer + rvalue.integer;
@@ -738,7 +789,9 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "-" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
+    if (functionCall == true) return Value();
     if (lvalue.type->typ == TYPE_INT && rvalue.type->typ == TYPE_INT)
     {
       value.integer = lvalue.integer - rvalue.integer;
@@ -774,7 +827,9 @@ Value Runtime::evaluate(ParseTree *tree)
     {
       std::cout << "*(times)" << std::endl;
       Value lvalue = this->evaluate(tree->children[0]);
+      if (functionCall == true) return Value();
       Value rvalue = this->evaluate(tree->children[1]);
+      if (functionCall == true) return Value();
       if (lvalue.type->typ == TYPE_INT && rvalue.type->typ == TYPE_INT)
       {
         value.integer = lvalue.integer * rvalue.integer;
@@ -796,6 +851,7 @@ Value Runtime::evaluate(ParseTree *tree)
     {
       std::cout << "*(pointer)" << std::endl;
       Value rvalue = this->evaluate(tree->children[0]);
+      if (functionCall == true) return Value();
       if (rvalue.type->typ != TYPE_POINTER)
       {
         throw "Type error";
@@ -830,7 +886,9 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "/" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
+    if (functionCall == true) return Value();
     if (lvalue.type->typ == TYPE_INT && rvalue.type->typ == TYPE_INT)
     {
       value.integer = lvalue.integer / rvalue.integer;
@@ -853,6 +911,7 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "++" << std::endl;
     Value rvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     value.type = rvalue.type;
     if (rvalue.type->typ == TYPE_INT)
     {
@@ -921,6 +980,7 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "--" << std::endl;
     Value rvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     value.type = rvalue.type;
     if (rvalue.type->typ == TYPE_INT)
     {
@@ -989,7 +1049,9 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     std::cout << "=" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
+    if (functionCall == true) return Value();
     Value rvalue = this->evaluate(tree->children[1]);
+    if (functionCall == true) return Value();
     // if (!isSameType(lvalue.type, rvalue.type))
     // {
     //   throw "Type error";
@@ -1030,7 +1092,9 @@ Value Runtime::evaluate(ParseTree *tree)
     {
       std::cout << "[]" << std::endl;
       Value lvalue = this->evaluate(tree->children[0]);
+      if (functionCall == true) return Value();
       Value rvalue = this->evaluate(tree->children[1]);
+      if (functionCall == true) return Value();
       std::cout << "lvalue type : " << lvalue.type->typ << std::endl;
       std::cout << "lvalue basetype : " << lvalue.type->baseType->typ << std::endl;
       if (rvalue.type->typ != TYPE_INT)
@@ -1060,6 +1124,14 @@ Value Runtime::evaluate(ParseTree *tree)
       }
     }
     else if (tree->wordData == "call") {
+      // set return value
+      if (this->returned) {
+        std::cout << "already called the function" << std::endl;
+        tree->value = this->returnValue;
+        tree->evaluated = true;
+        this->returned = false;
+        return tree->value;
+      }
       auto funcTree = tree->children[0];
       auto argsTree = tree->children[1];
       std::cout << "function call : " << funcTree->wordData << std::endl;
@@ -1070,9 +1142,16 @@ Value Runtime::evaluate(ParseTree *tree)
       }
       auto functionEntry = this->symbolTable.get(funcIndex);
       auto funcParameterTypes = functionEntry->getType()->parameterTypes;
+      auto function = (ParseTree*)(functionEntry->variableAddress);
+
+      // evaluate arguments
+      if (argsTree->children.size() != funcParameterTypes.size()) {
+        std::cout << "function parameter number mismatch" <<std::endl;
+      }
       std::vector<Value> argVals = std::vector<Value>();
       for (int i = 0; i < argsTree->children.size(); i++) {
         Value val = this->evaluate(argsTree->children[i]);
+        
         if (!isSameType(funcParameterTypes[i], val.type)) {
           if (funcParameterTypes[i]->typ == TYPE_FLOAT && val.type->typ == TYPE_INT) {
             val.type->typ = TYPE_FLOAT;
@@ -1085,10 +1164,65 @@ Value Runtime::evaluate(ParseTree *tree)
         argVals.push_back(val);
       }
       std::cout << "function call : " << funcTree->wordData << " : parameters evaluated." << std::endl;
+
+      // put argument into symbolTable
+      this->symbolTable.newProcedure();
+      auto pr = function;
+      auto params = pr->children[2];
+      for (int i = 0; i < argVals.size();i++) {
+        auto ptr = params->children[i]->children[1];
+        while (ptr->tag != ID) {
+          ptr = ptr->children[0];
+        }
+        std::string parameterID = ptr->wordData;
+        auto varType = argVals[i].type;
+        void *mem;
+        if (varType->typ == TYPE_ARRAY)
+        {
+          int size = varType->arraySize[0];
+          if (varType->baseType->typ == TYPE_INT)
+          {
+            mem = new int[size]();
+          }
+          else if (varType->baseType->typ == TYPE_FLOAT)
+          {
+            mem = new float[size]();
+          }
+          else if (varType->baseType->typ == TYPE_POINTER)
+          {
+            mem = new void *[size]();
+          }
+        }
+        else if (varType->typ == TYPE_POINTER)
+        {
+          mem = new void *();
+        }
+        else if (varType->typ == TYPE_INT)
+        {
+          mem = new int();
+        }
+        else if (varType->typ == TYPE_FLOAT)
+        {
+          mem = new float();
+        }
+        this->symbolTable.addNewSymbol(parameterID, *(argVals[i].type), mem);
+        int index = this->symbolTable.lookup(parameterID);
+        this->symbolTable.set(index, argVals[i], pr->lineNumber);
+      }
+      std::cout << "function call : " << funcTree->wordData << " : parameters allocated." << std::endl;
+
+      // put current node into call stack
+      this->callStack.addEntry(std::pair<ParseTree*, int>(this->currentNode, this->symbolTable.currentLevel()));
+      this->functionCall = true;
+      this->currentNode = (function->children[3]);
+      std::cout << "function call : " << funcTree->wordData<< ", jump to " << this->currentNode << std::endl;
+      return Value();
+      // procedure call end
     }
     throw "Type error";
   }
   }
+  tree->evaluated = true;
   return value;
 }
 

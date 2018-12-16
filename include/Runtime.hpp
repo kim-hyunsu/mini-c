@@ -15,6 +15,9 @@ private:
   int nextLine;
   ParseTree *currentNode;
   bool forBlockEnd = false;   // true only immediately after in-loop block ends
+  bool functionCall = false;
+  bool returned = false;
+  Value returnValue;
 
 public:
   Runtime(ParseTree *root);

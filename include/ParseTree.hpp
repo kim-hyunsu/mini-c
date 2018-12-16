@@ -8,6 +8,7 @@
 #include "Token.hpp"
 #include "Tag.hpp"
 #include "TypeObject.hpp"
+#include "Value.hpp"
 
 class ParseTree
 {
@@ -20,6 +21,8 @@ public:
   std::string wordData;
   ParseTree *parent;
   ParseTree *nextSibling;
+  Value value;
+  bool evaluated = false;
   std::vector<ParseTree *> children;
 
   ParseTree(){};
@@ -54,6 +57,7 @@ public:
       childPtr->nextSibling = nullptr;
   }
   void printParseTree(int l);
+  static void clearTempValue(ParseTree * tree);
 };
 
 #define YYSTYPE ParseTree *
