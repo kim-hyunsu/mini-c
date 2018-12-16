@@ -1,4 +1,5 @@
 #include "SymbolTable.hpp"
+#include <iostream>
 
 SymbolTable::SymbolTable()
     : level(0), procedure(0)
@@ -108,6 +109,7 @@ void SymbolTable::set(int index, Value value, int line)
   {
     int *addr = (int *)ste.variableAddress;
     *addr = value.integer;
+    std::cout << "set integer: " << *addr << std::endl;
     ste.history.addEntry(line, value.integer);
     break;
   }
@@ -115,6 +117,7 @@ void SymbolTable::set(int index, Value value, int line)
   {
     float *addr = (float *)ste.variableAddress;
     *addr = value.real;
+    std::cout << "set float: " << *addr << std::endl;
     ste.history.addEntry(line, value.real);
     break;
   }
@@ -122,6 +125,7 @@ void SymbolTable::set(int index, Value value, int line)
   {
     void **addr = (void **)ste.variableAddress;
     *addr = value.pointer;
+    std::cout << "set pointer: " << *addr << std::endl;
     ste.history.addEntry(line, value.pointer);
     break;
   }

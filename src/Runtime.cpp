@@ -326,7 +326,6 @@ bool Runtime::runLine()
   // statement is expression
   else
   {
-    std::cout << "evaluate: " << currentNode->tag << std::endl;
     this->evaluate(currentNode);
   }
 
@@ -375,6 +374,7 @@ ParseTree *Runtime::nextStatement(ParseTree *crnt)
 string Runtime::print(string var)
 {
   string value;
+  std::cout << "print: " << var << std::endl;
   int index = this->symbolTable.lookup(var);
   switch (index)
   {
@@ -412,11 +412,13 @@ vector<string> Runtime::trace(string var)
 
 Value Runtime::evaluate(ParseTree *tree)
 {
+  std::cout << "evaluate: ";
   Value value = Value();
   switch (tree->tag)
   {
   case EQUAL:
   {
+    std::cout << "==" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type != rvalue.type)
@@ -443,6 +445,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case NEQUAL:
   {
+    std::cout << "!=" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type != rvalue.type)
@@ -469,6 +472,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '<':
   {
+    std::cout << "<" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type != rvalue.type)
@@ -495,6 +499,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '>':
   {
+    std::cout << ">" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type != rvalue.type)
@@ -521,18 +526,21 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case NUM:
   {
+    std::cout << tree->numData << std::endl;
     value.integer = tree->numData;
     value.type = TYPE_INT;
     break;
   }
   case REAL:
   {
+    std::cout << tree->numData << std::endl;
     value.real = tree->realData;
     value.type = TYPE_FLOAT;
     break;
   }
   case ID:
   {
+    std::cout << tree->wordData << std::endl;
     SymbolTableEntry ste = getSymbolTableEntry(&this->symbolTable, tree->wordData);
     switch (ste.getType().typ)
     {
@@ -556,6 +564,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '+':
   {
+    std::cout << "+" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
@@ -591,6 +600,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '-':
   {
+    std::cout << "-" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
@@ -624,6 +634,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '*':
   {
+    std::cout << "+" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
@@ -646,6 +657,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '/':
   {
+    std::cout << "/" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
     if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
@@ -668,6 +680,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case INC:
   {
+    std::cout << "++" << std::endl;
     Value rvalue = this->evaluate(tree->children[0]);
     value.type = rvalue.type;
     if (rvalue.type == TYPE_INT)
@@ -718,6 +731,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case DEC:
   {
+    std::cout << "--" << std::endl;
     Value rvalue = this->evaluate(tree->children[0]);
     value.type = rvalue.type;
     if (rvalue.type == TYPE_INT)
@@ -768,6 +782,7 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '=':
   {
+    std::cout << "=" << std::endl;
     Value rvalue = this->evaluate(tree->children[1]);
     std::string variableName = tree->children[0]->wordData;
     int arrayIndex = 0;
@@ -802,6 +817,7 @@ Value Runtime::evaluate(ParseTree *tree)
   {
     if (tree->wordData == "subscript")
     {
+      std::cout << "[]" << std::endl;
       ParseTree *ltree = tree->children[0];
       ParseTree *rtree = tree->children[1];
       Value arrayIndex = this->evaluate(rtree);
