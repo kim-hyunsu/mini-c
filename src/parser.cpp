@@ -47,7 +47,7 @@ void Parser::tokenize()
       }
     }
   }
-  std::cout << std::endl;
+  // std::cout << std::endl;
 }
 
 // parse abstract type only; eg. float***
@@ -200,7 +200,6 @@ bool Parser::firstPass()
       if (tag == ID)
       {
         currentName = *((std::string *)token.first);
-        std::cout << "Function or global variable name : " << currentName << std::endl;
         parseState = 2;
         cursor += 1;
       }
