@@ -1,5 +1,6 @@
 #include "SymbolTableEntry.hpp"
 #include <sstream>
+#include <iostream>
 
 static std::string toString(TypeObject type, void *addr);
 
@@ -71,23 +72,21 @@ static std::string toString(TypeObject type, void *addr)
     break;
   case TYPE_ARRAY:
     ss << "{";
-    for (int i = 0; i < type.arraySize.size(); i++)
+    for (int j = 0; j < type.arraySize[0]; j++)
     {
-      ss << "{";
-      for (int j = 0; j < type.arraySize[i]; j++)
+      switch (type.baseType->typ)
       {
-        if (type.baseType->typ == TYPE_POINTER)
-        {
-          ss << toString(*type.baseType, (char *)addr + 8 * i);
-        }
-        else
-        {
-          ss << toString(*type.baseType, (char *)addr + 4 * i);
-        }
-        ss << ", ";
+      case TYPE_INT:
+      case TYPE_FLOAT:
+        ss << toString(*type.baseType, ((int *)addr + j));
+        break;
+      case TYPE_POINTER:
+      case TYPE_ARRAY:
+        ss << toString(*type.baseType, ((void **)addr + j));
+        break;
       }
-      ss << "}";
-      ss << ", ";
+      if (j != type.arraySize[0] - 1)
+        ss << ", ";
     }
     ss << "}";
     value = ss.str();
