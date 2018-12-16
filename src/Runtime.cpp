@@ -1049,8 +1049,6 @@ Value Runtime::evaluate(ParseTree *tree)
       std::cout << "[]" << std::endl;
       Value lvalue = this->evaluate(tree->children[0]);
       Value rvalue = this->evaluate(tree->children[1]);
-      std::cout << "lvalue type : " << lvalue.type->typ << std::endl;
-      std::cout << "lvalue basetype : " << lvalue.type->baseType->typ << std::endl;
       if (rvalue.type->typ != TYPE_INT)
         throw "Type error";
       // if (lvalue.type->typ != TYPE_ARRAY)
@@ -1061,18 +1059,18 @@ Value Runtime::evaluate(ParseTree *tree)
       switch (value.type->typ)
       {
       case TYPE_INT:
-        value.integer = *((int *)lvalue.pointer + rvalue.integer);
-        value.address = ((int *)lvalue.pointer + rvalue.integer);
+        value.integer = *((int *)lvalue.address + rvalue.integer);
+        value.address = ((int *)lvalue.address + rvalue.integer);
         break;
       case TYPE_FLOAT:
-        value.real = *((float *)lvalue.pointer + rvalue.integer);
-        value.address = ((float *)lvalue.pointer + rvalue.integer);
+        value.real = *((float *)lvalue.address + rvalue.integer);
+        value.address = ((float *)lvalue.address + rvalue.integer);
         ;
         break;
       case TYPE_POINTER:
       case TYPE_ARRAY:
-        value.pointer = *((void **)lvalue.pointer + rvalue.integer);
-        value.address = ((void **)lvalue.pointer + rvalue.integer);
+        value.pointer = *((void **)lvalue.address + rvalue.integer);
+        value.address = ((void **)lvalue.address + rvalue.integer);
         break;
       default:
         throw "Type error";
@@ -1111,7 +1109,10 @@ Value Runtime::evaluate(ParseTree *tree)
       }
       std::cout << "function call : " << funcTree->wordData << " : parameters evaluated." << std::endl;
     }
-    throw "Type error";
+    else
+    {
+      throw "Type error";
+    }
   }
   }
   return value;
