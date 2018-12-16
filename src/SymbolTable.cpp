@@ -42,20 +42,17 @@ void SymbolTable::addNewSymbol(std::string name, TypeObject vType, void *address
 
 void SymbolTable::newLevel()
 {
-  std::cout << "SymbolTable : new level : " << this->level + 1 << std::endl;
   this->level += 1;
 }
 
 void SymbolTable::newProcedure()
 {
-  std::cout << "SymbolTable : new procedure : " << this->procedure + 1 << std::endl;
   this->level = 0;
   this->procedure += 1;
 }
 
 void SymbolTable::deleteLevel()
 {
-  std::cout << "SymbolTable : delete level : " << this->level << std::endl;
 
   int currentLevel = this->level;
   int currentProcedure = this->procedure;
@@ -79,7 +76,6 @@ void SymbolTable::deleteLevel()
 
 void SymbolTable::deleteProcedure(int lvl)
 {
-  std::cout << "SymbolTable : delete procedure : " << this->procedure << std::endl;
 
   int currentLevel = this->level;
   int currentProcedure = this->procedure;
@@ -119,7 +115,6 @@ void SymbolTable::set(int index, Value value, int line)
   {
     int *addr = (int *)ste->variableAddress;
     *addr = value.integer;
-    std::cout << "set integer: " << *addr << std::endl;
     ste->history.addEntry(line, value.integer);
     ste->setAssigned(true);
     break;
@@ -128,7 +123,6 @@ void SymbolTable::set(int index, Value value, int line)
   {
     float *addr = (float *)ste->variableAddress;
     *addr = value.real;
-    std::cout << "set float: " << *addr << std::endl;
     ste->history.addEntry(line, value.real);
     ste->setAssigned(true);
     break;
@@ -137,7 +131,6 @@ void SymbolTable::set(int index, Value value, int line)
   {
     void **addr = (void **)ste->variableAddress;
     *addr = value.pointer;
-    std::cout << "set pointer: " << *addr << std::endl;
     ste->history.addEntry(line, value.pointer);
     ste->setAssigned(true);
     break;

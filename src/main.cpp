@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
   parser->tokenize();
   // parsing
   int i = yyparse();
-  std::cout << "yyparse result : " << i << std::endl;
+  // std::cout << "yyparse result : " << i << std::endl;
 
-  std::cout << root->children.size() << std::endl;
+  // std::cout << root->children.size() << std::endl;
   root->printParseTree(0);
   // running
   Runtime *run = new Runtime(root);
@@ -66,7 +66,10 @@ int main(int argc, char *argv[])
       }
       bool done = run->next(lines);
       if (done)
+      {
         cout << "End of Program" << endl;
+        return 0;
+      }
     }
     else if (arglist[0].compare("print") == 0)
     {

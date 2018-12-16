@@ -24,8 +24,21 @@
 
 우리의 구현체는 라인번호 1개 당 1 개의 statement를 가진다고 가정하고 분기문이나 프로시져를 전환할 때마다 돌아올 라인번호가 아닌 statement 위치(parseTree pointer)를 저장한다.
 ## Implementation
-### next command
+### Next command
 1. next 에 따라붙는 번호 만큼 statement를 실행시킨다.
 1. statement를 실행시킬 때 declaration을 만나면 symbol table에 기록을 해준다.
 1. assignment를 만나면 등호 왼쪽 변수의 주소를 계산하고 등호 오른쪽 변수의 값을 계산하여 해당 주소에 값을 저장해준다.
-1. 
+1. for, if를 만나면 condition 값에 따라 다음 계산할 parseTree를 선정한다.
+1. function call을 만나면 evaluation을 중단하고 가장 마지막에 계산한 값들을 각 parseTree에 저장한 뒤 현재 parseTree와 level을 callstack에 저장하고 해당 function으로 이동한다.
+1. 해당 function이 끝나면 callstack에서 pop하여 이어서 실행할 parseTree를 얻는다.
+1. 현재 parseTree를 다시 실행하고 만약 child tree에 이미 계산한 값(function call직전까지 계산한 값)이 있다면 그 값을 리턴하여 evaluation을 수행한다.
+1. printf를 만나면 첫번째 인수를 제외한 나머지를 evaluate하고 string literal인 첫번째 인수와 나머지 인수들을 그대로 c언어 함수인 printf에 넣는다.
+> recursive function을 완전히 지원하기 위해서는 parseTree에 계산이 덜 끝난 값을, function call한 프로시져마다 기억하여 저장해야한다. 하지만 시간 상의 이유로 1단계 전의 프로시져 값만 저장할 수 있다.
+### Print command
+1. 우리는 symbol table을 관리하고 있기 때문에 어느 순간이든 현재 변수의 값을 알 수 있다.
+1. print의 인자로 들어온 string에 해당하는 symbolTable entry를 가져와서 값을 리턴해준다.
+> 우리의 프로그램은 Array변수를 출력할 수는 있지만 Array변수의 element를 출력하지 못한다. 이 또한 시간 상의 이유로, 만약 print의 인자로 들어온 string을 parsing만 한다면 해결할 수 있다.
+### Trace command
+1. 우리는 심볼마다 history를 관리하고 있기 때문에 어느 순간이든 현재까지 수정된 변수값들을 확인할 수 있다.
+1. trace의 인자로 들어온 string에 해당하는 symbolTable entry를 찾고 해당 entry에 들어있는 histroy table을 탐색하여 값을 리턴해 준다.
+> 마찬가지로 우리의 프로그램은 Array의 history는 출력하지만 Array element의 history를 출력하지 못한다. print와 마찬가지 방법으로 해결할 수 있다.
