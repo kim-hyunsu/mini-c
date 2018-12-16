@@ -176,26 +176,78 @@ bool Runtime::runLine()
         auto lch = ch->children[0];
         auto rch = ch->children[1];
 
-        Value val = this->evaluate(rch);
+        Value rval = this->evaluate(rch);
+
+        auto ptr = lch;
+        while (ptr->tag != ID)
+        {
+          ptr = ptr->children[0];
+          TypeObject *newType = new TypeObject(TYPE_POINTER);
+          newType->baseType = varType;
+          varType = newType;
+        }
+        if (ptr->children.size() == 1)
+        {
+          // array
+          auto chch = ptr->children[0];
+          TypeObject *newType = new TypeObject(TYPE_ARRAY);
+          if (chch->children.size() == 1 && chch->children[0]->tag == NUM)
+          {
+            newType->arraySize.push_back(chch->children[0]->numData);
+          }
+          newType->baseType = varType;
+          varType = newType;
+        }
+
         void *mem;
-        if (varType->typ == TYPE_INT && val.type->typ == TYPE_INT)
+        if (varType->typ == TYPE_ARRAY)
+        {
+          // should allocate array
+          int size = varType->arraySize[0];
+          if (varType->baseType->typ == TYPE_INT)
+          {
+            mem = new int[size]();
+          }
+          else if (varType->baseType->typ == TYPE_FLOAT)
+          {
+            mem = new float[size]();
+          }
+          else if (varType->baseType->typ == TYPE_POINTER)
+          {
+            mem = new void *[size]();
+          }
+        }
+        else if (varType->typ == TYPE_POINTER)
+        {
+          mem = new void *();
+        }
+        else if (varType->typ == TYPE_INT)
         {
           mem = new int();
-          this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
-          int idx = this->symbolTable.lookup(lch->wordData);
-          this->symbolTable.set(idx, val, lch->lineNumber);
         }
-        else if (varType->typ == TYPE_FLOAT && val.type->typ == TYPE_FLOAT)
+        else if (varType->typ == TYPE_FLOAT)
         {
           mem = new float();
-          this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
-          int idx = this->symbolTable.lookup(lch->wordData);
-          this->symbolTable.set(idx, val, lch->lineNumber);
         }
+        this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
+        int idx = this->symbolTable.lookup(lch->wordData);
+        if (!isSameType(varType, rval.type))
+        {
+          if (varType->typ == TYPE_FLOAT && rval.type->typ == TYPE_INT)
+          {
+            rval.type->typ = TYPE_FLOAT;
+            rval.real = (float)rval.integer;
+          }
+
+          else
+          {
+          }
+        }
+        this->symbolTable.set(idx, rval, lch->lineNumber);
       }
       else
       {
-        // no declaration
+        // no initialization
         auto ptr = ch;
         while (ptr->tag != ID)
         {
@@ -216,10 +268,7 @@ bool Runtime::runLine()
           newType->baseType = varType;
           varType = newType;
         }
-        else
-        {
-          // a simple declaration
-        }
+
         void *mem;
         if (varType->typ == TYPE_ARRAY)
         {
@@ -425,15 +474,7 @@ ParseTree *Runtime::nextStatement(ParseTree *crnt)
       if (crnt == parent->children[1])
       {
         // this is then block's end
-        if (parent->children.size() == 3)
-        {
-          // return else block
-          return sibling;
-        }
-        else
-        {
-          return nextStatement(parent);
-        }
+        return nextStatement(parent);
       }
       else
       {
@@ -668,6 +709,7 @@ Value Runtime::evaluate(ParseTree *tree)
     case TYPE_POINTER:
     case TYPE_ARRAY:
       value.pointer = *(void **)ste->variableAddress;
+      value.type = type;
       break;
     default:
       throw "Type error";
@@ -1007,6 +1049,8 @@ Value Runtime::evaluate(ParseTree *tree)
       std::cout << "[]" << std::endl;
       Value lvalue = this->evaluate(tree->children[0]);
       Value rvalue = this->evaluate(tree->children[1]);
+      std::cout << "lvalue type : " << lvalue.type->typ << std::endl;
+      std::cout << "lvalue basetype : " << lvalue.type->baseType->typ << std::endl;
       if (rvalue.type->typ != TYPE_INT)
         throw "Type error";
       // if (lvalue.type->typ != TYPE_ARRAY)
@@ -1017,26 +1061,57 @@ Value Runtime::evaluate(ParseTree *tree)
       switch (value.type->typ)
       {
       case TYPE_INT:
-        value.integer = ((int *)lvalue.ste->variableAddress)[rvalue.integer];
-        value.address = &((int *)lvalue.ste->variableAddress)[rvalue.integer];
+        value.integer = *((int *)lvalue.pointer + rvalue.integer);
+        value.address = ((int *)lvalue.pointer + rvalue.integer);
         break;
       case TYPE_FLOAT:
-        value.real = ((float *)lvalue.ste->variableAddress)[rvalue.integer];
-        value.address = &((float *)lvalue.ste->variableAddress)[rvalue.integer];
+        value.real = *((float *)lvalue.pointer + rvalue.integer);
+        value.address = ((float *)lvalue.pointer + rvalue.integer);
+        ;
         break;
       case TYPE_POINTER:
       case TYPE_ARRAY:
-        value.pointer = ((void **)lvalue.ste->variableAddress)[rvalue.integer];
-        value.address = &((void **)lvalue.ste->variableAddress)[rvalue.integer];
+        value.pointer = *((void **)lvalue.pointer + rvalue.integer);
+        value.address = ((void **)lvalue.pointer + rvalue.integer);
         break;
       default:
         throw "Type error";
       }
     }
-    else
+    else if (tree->wordData == "call")
     {
-      throw "Type error";
+      auto funcTree = tree->children[0];
+      auto argsTree = tree->children[1];
+      std::cout << "function call : " << funcTree->wordData << std::endl;
+      auto funcIndex = this->symbolTable.lookup(funcTree->wordData);
+      if (funcIndex < 0)
+      {
+        std::cout << "function not found" << std::endl;
+        throw "";
+      }
+      auto functionEntry = this->symbolTable.get(funcIndex);
+      auto funcParameterTypes = functionEntry->getType()->parameterTypes;
+      std::vector<Value> argVals = std::vector<Value>();
+      for (int i = 0; i < argsTree->children.size(); i++)
+      {
+        Value val = this->evaluate(argsTree->children[i]);
+        if (!isSameType(funcParameterTypes[i], val.type))
+        {
+          if (funcParameterTypes[i]->typ == TYPE_FLOAT && val.type->typ == TYPE_INT)
+          {
+            val.type->typ = TYPE_FLOAT;
+            val.real = (float)val.integer;
+          }
+          else
+          {
+            std::cout << "function parameter type does not match" << std::endl;
+          }
+        }
+        argVals.push_back(val);
+      }
+      std::cout << "function call : " << funcTree->wordData << " : parameters evaluated." << std::endl;
     }
+    throw "Type error";
   }
   }
   return value;

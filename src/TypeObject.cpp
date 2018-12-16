@@ -48,6 +48,7 @@ bool isSameType(TypeObject *a, TypeObject *b)
     }
     }
   }
+  return false;
 }
 
 TypeObject *TypeObject::buildPointer(TypeObject *baseType)
