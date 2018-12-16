@@ -2,6 +2,9 @@
 #define VALUE_H
 
 #include "TypeObject.hpp"
+#include "SymbolTableEntry.hpp"
+
+
 class Value
 {
 public:

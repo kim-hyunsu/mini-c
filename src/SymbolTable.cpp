@@ -21,7 +21,7 @@ int SymbolTable::lookup(std::string name)
   {
     if (this->table[i].checkName(name))
     {
-      if (this->table[i].getProcedure() == this->procedure)
+      if (this->table[i].getProcedure() == this->procedure || this->table[i].getType()->typ == TYPE_FUNCTION)
       {
         return i;
       }
@@ -48,6 +48,8 @@ void SymbolTable::newLevel()
 
 void SymbolTable::newProcedure()
 {
+  std::cout << "SymbolTable : new procedure : " << this->procedure + 1 << std::endl;
+  this->level = 0;
   this->procedure += 1;
 }
 
@@ -75,8 +77,10 @@ void SymbolTable::deleteLevel()
   this->level -= 1;
 }
 
-void SymbolTable::deleteProcedure()
+void SymbolTable::deleteProcedure(int lvl)
 {
+  std::cout << "SymbolTable : delete procedure : " << this->procedure << std::endl;
+
   int currentLevel = this->level;
   int currentProcedure = this->procedure;
 
@@ -94,6 +98,7 @@ void SymbolTable::deleteProcedure()
       break;
     }
   }
+  this->level = lvl;
   this->procedure -= 1;
   // need to set this->level after cleaning up the call stack
 }

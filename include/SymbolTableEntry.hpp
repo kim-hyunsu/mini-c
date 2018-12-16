@@ -1,3 +1,6 @@
+#ifndef SYMBOLTABLEENTRY_H
+#define SYMBOLTABLEENTRY_H
+
 #include <string>
 
 #include "TypeObject.hpp"
@@ -27,3 +30,5 @@ public:
   std::vector<std::string> getHistory(std::string name);
   void setAssigned(bool v);
 };
+
+#endif

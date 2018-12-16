@@ -1,13 +1,13 @@
 #include <string>
 #include <vector>
 
+#include "ParseTree.hpp"
+
 class CallStack {
 private:
-  // pair (pointer to AST, level of the scope)
-  // should change to proper AST type later
-  std::vector<std::pair<void*, int>> stack;
+  std::vector<std::pair<ParseTree *, int>> stack;
 
 public:
-  void addEntry(void* ast, int level);
-  std::pair<void*, int> deleteEntry();
+  void addEntry(std::pair<ParseTree *, int> entry);
+  std::pair<ParseTree *, int> deleteEntry();
 };

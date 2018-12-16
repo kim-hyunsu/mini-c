@@ -39,3 +39,11 @@ void ParseTree::printParseTree(int l)
     this->children[k]->printParseTree(l + 1);
   }
 }
+
+
+void ParseTree::clearTempValue(ParseTree * tree) {
+  tree->evaluated = false;
+  for (int i = 0; i < tree->children.size(); i++) {
+    clearTempValue(tree->children[i]);
+  }
+}
