@@ -47,6 +47,11 @@ std::vector<std::string> SymbolTableEntry::getHistory(std::string name)
   return this->history.getHistory(name);
 }
 
+void SymbolTableEntry::setAssigned(bool v)
+{
+  this->assigned = v;
+}
+
 static std::string toString(TypeObject type, void *addr)
 {
   std::string value;

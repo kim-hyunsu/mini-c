@@ -25,4 +25,5 @@ public:
   std::string getValue();
   TypeObject getType();
   std::vector<std::string> getHistory(std::string name);
+  void setAssigned(bool v);
 };

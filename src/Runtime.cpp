@@ -169,7 +169,20 @@ bool Runtime::runLine()
         auto lch = ch->children[0];
         auto rch = ch->children[1];
 
-        // TODO: should call 'eval' then initialize variables
+        Value val = this->evaluate(rch);
+        void *mem;
+        if (varType->typ==TYPE_INT && val.type == TYPE_INT) {
+          mem = new int();
+          this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
+          int idx = this->symbolTable.lookup(lch->wordData);
+          this->symbolTable.set(idx, val, lch->lineNumber);
+        }
+        else if (varType->typ==TYPE_FLOAT && val.type == TYPE_FLOAT) {
+          mem = new float();
+          this->symbolTable.addNewSymbol(lch->wordData, *varType, mem);
+          int idx = this->symbolTable.lookup(lch->wordData);
+          this->symbolTable.set(idx, val, lch->lineNumber);
+        }
       }
       else
       {
@@ -258,13 +271,15 @@ bool Runtime::runLine()
     }
 
     // TODO: evaluate expression then jump
-    bool condVal = true; // = this->eval(cond);
-    if (condVal != 0)
+    Value condVal = this->evaluate(cond);
+    if (condVal.boolean)
     {
+      std::cout << "IF : then" << std::endl;
       this->currentNode = then;
     }
     else if (children.size() == 3)
     {
+      std::cout << "IF : else" << std::endl;
       this->currentNode = els;
     }
     else

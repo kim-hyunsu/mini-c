@@ -100,33 +100,36 @@ SymbolTableEntry SymbolTable::get(int index)
 
 void SymbolTable::set(int index, Value value, int line)
 {
-  SymbolTableEntry ste = this->table[index];
-  if (ste.getType().typ != value.type)
+  SymbolTableEntry *ste = &(this->table[index]);
+  if (ste->getType().typ != value.type)
     throw "Type error";
   switch (value.type)
   {
   case TYPE_INT:
   {
-    int *addr = (int *)ste.variableAddress;
+    int *addr = (int *)ste->variableAddress;
     *addr = value.integer;
     std::cout << "set integer: " << *addr << std::endl;
-    ste.history.addEntry(line, value.integer);
+    ste->history.addEntry(line, value.integer);
+    ste->setAssigned(true);
     break;
   }
   case TYPE_FLOAT:
   {
-    float *addr = (float *)ste.variableAddress;
+    float *addr = (float *)ste->variableAddress;
     *addr = value.real;
     std::cout << "set float: " << *addr << std::endl;
-    ste.history.addEntry(line, value.real);
+    ste->history.addEntry(line, value.real);
+    ste->setAssigned(true);
     break;
   }
   case TYPE_POINTER:
   {
-    void **addr = (void **)ste.variableAddress;
+    void **addr = (void **)ste->variableAddress;
     *addr = value.pointer;
     std::cout << "set pointer: " << *addr << std::endl;
-    ste.history.addEntry(line, value.pointer);
+    ste->history.addEntry(line, value.pointer);
+    ste->setAssigned(true);
     break;
   }
   }
