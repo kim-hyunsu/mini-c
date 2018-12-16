@@ -16,7 +16,6 @@ TypeObject::~TypeObject()
 
 bool isSameType(TypeObject *a, TypeObject *b)
 {
-  std::cout << "issametype rvalue type: " << b->typ << std::endl;
   if (a->typ == b->typ)
   {
     switch (a->typ)

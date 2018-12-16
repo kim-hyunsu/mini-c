@@ -7,6 +7,7 @@ int main (int x, int y, int *z[3] ) {
   c = a++;
   c--;
   a--;
+  b[3] = 8;
   {
   if ( a == 3 ) a=3; else { a [ b+c[3]] = 7; a = 3;} 
   for (i = 0; i = 3; i = 7) {

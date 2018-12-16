@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdio.h>
 
-static SymbolTableEntry getSymbolTableEntry(SymbolTable *symbolTable, std::string name);
+static SymbolTableEntry *getSymbolTableEntry(SymbolTable *symbolTable, std::string name);
 
 Runtime::Runtime(ParseTree *root) : root(root), nextLine(1), currentNode(root)
 {
@@ -109,9 +109,9 @@ bool Runtime::findMain()
     std::cout << "main function is not found." << std::endl;
     return false;
   default:
-    SymbolTableEntry ste = this->symbolTable.get(index);
-    this->currentNode = ((ParseTree *)(ste.variableAddress))->children[3];
-    std::cout << "main is at : " << ste.variableAddress << std::endl;
+    SymbolTableEntry *ste = this->symbolTable.get(index);
+    this->currentNode = ((ParseTree *)(ste->variableAddress))->children[3];
+    std::cout << "main is at : " << ste->variableAddress << std::endl;
     return true;
   }
 }
@@ -411,8 +411,8 @@ string Runtime::print(string var)
     value = "N/A";
     break;
   default:
-    SymbolTableEntry ste = this->symbolTable.get(index);
-    value = ste.getValue();
+    SymbolTableEntry *ste = this->symbolTable.get(index);
+    value = ste->getValue();
   }
   return value;
 }
@@ -430,8 +430,8 @@ vector<string> Runtime::trace(string var)
     history.push_back("N/A");
     break;
   default:
-    SymbolTableEntry ste = this->symbolTable.get(index);
-    history = ste.getHistory(var);
+    SymbolTableEntry *ste = this->symbolTable.get(index);
+    history = ste->getHistory(var);
   }
   return history;
 }
@@ -571,21 +571,21 @@ Value Runtime::evaluate(ParseTree *tree)
   case ID:
   {
     std::cout << tree->wordData << std::endl;
-    SymbolTableEntry ste = getSymbolTableEntry(&this->symbolTable, tree->wordData);
-    TypeObject *type = ste.getType();
+    SymbolTableEntry *ste = getSymbolTableEntry(&this->symbolTable, tree->wordData);
+    TypeObject *type = ste->getType();
     switch (type->typ)
     {
     case TYPE_INT:
-      value.integer = *(int *)ste.variableAddress;
+      value.integer = *(int *)ste->variableAddress;
       value.type = type;
       break;
     case TYPE_FLOAT:
-      value.real = *(float *)ste.variableAddress;
+      value.real = *(float *)ste->variableAddress;
       value.type = type;
       break;
     case TYPE_POINTER:
     case TYPE_ARRAY:
-      value.pointer = *(void **)ste.variableAddress;
+      value.pointer = *(void **)ste->variableAddress;
       value.type = type;
       break;
     default:
@@ -757,10 +757,24 @@ Value Runtime::evaluate(ParseTree *tree)
       value.real = rvalue.real;
       rvalue.real++;
     }
-    else if (rvalue.type->typ == TYPE_POINTER || rvalue.type->typ == TYPE_ARRAY)
+    else if (rvalue.type->typ == TYPE_POINTER)
     {
       value.pointer = rvalue.pointer;
-      rvalue.pointer = (int *)rvalue.pointer + 1;
+      switch (rvalue.type->baseType->typ)
+      {
+      case TYPE_INT:
+        rvalue.pointer = (int *)rvalue.pointer + 1;
+        break;
+      case TYPE_FLOAT:
+        rvalue.pointer = (float *)rvalue.pointer + 1;
+        break;
+      case TYPE_POINTER:
+      case TYPE_ARRAY:
+        rvalue.pointer = (void **)rvalue.pointer + 1;
+        break;
+      default:
+        throw "Type error";
+      }
     }
     else
     {
@@ -791,7 +805,6 @@ Value Runtime::evaluate(ParseTree *tree)
       int line = tree->children[0]->lineNumber;
       if (index < 0)
         throw "Not declared";
-      std::cout << "runtime rvalue type: " << rvalue.type->typ << std::endl;
       this->symbolTable.set(index, rvalue, line);
     }
     break;
@@ -811,13 +824,29 @@ Value Runtime::evaluate(ParseTree *tree)
       value.real = rvalue.real;
       rvalue.real--;
     }
-    else if (rvalue.type->typ == TYPE_POINTER || rvalue.type->typ == TYPE_ARRAY)
+    else if (rvalue.type->typ == TYPE_POINTER)
     {
       value.pointer = rvalue.pointer;
-      rvalue.pointer = (int *)rvalue.pointer - 1;
+      switch (rvalue.type->baseType->typ)
+      {
+      case TYPE_INT:
+        rvalue.pointer = (int *)rvalue.pointer - 1;
+        break;
+      case TYPE_FLOAT:
+        rvalue.pointer = (float *)rvalue.pointer - 1;
+        break;
+      case TYPE_POINTER:
+      case TYPE_ARRAY:
+        rvalue.pointer = (void **)rvalue.pointer - 1;
+        break;
+      default:
+        throw "Type error";
+      }
     }
     else
+    {
       throw "Type error";
+    }
     std::string variableName = tree->children[0]->wordData;
     int arrayIndex = 0;
     if (variableName == "subscript")
@@ -890,22 +919,22 @@ Value Runtime::evaluate(ParseTree *tree)
       Value arrayIndex = this->evaluate(rtree);
       if (ltree->tag != ID || arrayIndex.type->typ != TYPE_INT)
         throw "type error";
-      SymbolTableEntry ste = getSymbolTableEntry(&this->symbolTable, ltree->wordData);
-      TypeObject *type = ste.getType();
+      SymbolTableEntry *ste = getSymbolTableEntry(&this->symbolTable, ltree->wordData);
+      TypeObject *type = ste->getType();
       if (type->typ != TYPE_ARRAY)
         throw "type error";
       value.type = type->baseType;
       switch (value.type->typ)
       {
       case TYPE_INT:
-        value.integer = ((int *)ste.variableAddress)[arrayIndex.integer];
+        value.integer = ((int *)ste->variableAddress)[arrayIndex.integer];
         break;
       case TYPE_FLOAT:
-        value.real = ((float *)ste.variableAddress)[arrayIndex.integer];
+        value.real = ((float *)ste->variableAddress)[arrayIndex.integer];
         break;
       case TYPE_POINTER:
       case TYPE_ARRAY:
-        value.pointer = ((void **)ste.variableAddress)[arrayIndex.integer];
+        value.pointer = ((void **)ste->variableAddress)[arrayIndex.integer];
         break;
       default:
         throw "Type error";
@@ -917,7 +946,7 @@ Value Runtime::evaluate(ParseTree *tree)
   return value;
 }
 
-static SymbolTableEntry getSymbolTableEntry(SymbolTable *symbolTable, std::string name)
+static SymbolTableEntry *getSymbolTableEntry(SymbolTable *symbolTable, std::string name)
 {
   int index = symbolTable->lookup(name);
   switch (index)
