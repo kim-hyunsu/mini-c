@@ -466,6 +466,58 @@ Value Runtime::evaluate(ParseTree *tree)
     value.type = TYPE_BOOL;
     break;
   }
+  case '<':
+  {
+    Value lvalue = this->evaluate(tree->children[0]);
+    Value rvalue = this->evaluate(tree->children[1]);
+    if (lvalue.type != rvalue.type)
+    {
+      throw "Type error";
+    }
+    switch (lvalue.type)
+    {
+    case TYPE_BOOL:
+      value.boolean = lvalue.boolean < rvalue.boolean;
+      break;
+    case TYPE_INT:
+      value.boolean = lvalue.integer < rvalue.integer;
+      break;
+    case TYPE_FLOAT:
+      value.boolean = lvalue.real < rvalue.real;
+      break;
+    case TYPE_POINTER:
+      value.boolean = lvalue.pointer < rvalue.pointer;
+      break;
+    }
+    value.type = TYPE_BOOL;
+    break;
+  }
+  case '>':
+  {
+    Value lvalue = this->evaluate(tree->children[0]);
+    Value rvalue = this->evaluate(tree->children[1]);
+    if (lvalue.type != rvalue.type)
+    {
+      throw "Type error";
+    }
+    switch (lvalue.type)
+    {
+    case TYPE_BOOL:
+      value.boolean = lvalue.boolean > rvalue.boolean;
+      break;
+    case TYPE_INT:
+      value.boolean = lvalue.integer > rvalue.integer;
+      break;
+    case TYPE_FLOAT:
+      value.boolean = lvalue.real > rvalue.real;
+      break;
+    case TYPE_POINTER:
+      value.boolean = lvalue.pointer > rvalue.pointer;
+      break;
+    }
+    value.type = TYPE_BOOL;
+    break;
+  }
   case NUM:
   {
     value.integer = tree->numData;
