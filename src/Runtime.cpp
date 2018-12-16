@@ -568,14 +568,14 @@ Value Runtime::evaluate(ParseTree *tree)
     std::cout << "==" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (!isSameType(lvalue.type, rvalue.type))
-    {
-      throw "Type error";
-    }
+    // if (!isSameType(lvalue.type, rvalue.type))
+    // {
+    //   throw "Type error";
+    // }
     switch (lvalue.type->typ)
     {
     case TYPE_BOOL:
-      value.boolean = lvalue.boolean == rvalue.boolean;
+      value.boolean = lvalue.boolean == lvalue.boolean;
       break;
     case TYPE_INT:
       value.boolean = lvalue.integer == rvalue.integer;
@@ -596,10 +596,10 @@ Value Runtime::evaluate(ParseTree *tree)
     std::cout << "!=" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (!isSameType(lvalue.type, rvalue.type))
-    {
-      throw "Type error";
-    }
+    // if (!isSameType(lvalue.type, rvalue.type))
+    // {
+    //   throw "Type error";
+    // }
     switch (lvalue.type->typ)
     {
     case TYPE_BOOL:
@@ -624,10 +624,10 @@ Value Runtime::evaluate(ParseTree *tree)
     std::cout << "<" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (!isSameType(lvalue.type, rvalue.type))
-    {
-      throw "Type error";
-    }
+    // if (!isSameType(lvalue.type, rvalue.type))
+    // {
+    //   throw "Type error";
+    // }
     switch (lvalue.type->typ)
     {
     case TYPE_BOOL:
@@ -652,26 +652,23 @@ Value Runtime::evaluate(ParseTree *tree)
     std::cout << ">" << std::endl;
     Value lvalue = this->evaluate(tree->children[0]);
     Value rvalue = this->evaluate(tree->children[1]);
-    if (!isSameType(lvalue.type, rvalue.type))
-    {
-      throw "Type error";
-    }
+    // if (!isSameType(lvalue.type, rvalue.type))
+    // {
+    //   throw "Type error";
+    // }
     switch (lvalue.type->typ)
     {
     case TYPE_BOOL:
-      value.boolean = lvalue.boolean > rvalue.boolean;
-      break;
     case TYPE_INT:
-      value.boolean = lvalue.integer > rvalue.integer;
-      break;
     case TYPE_FLOAT:
-      value.boolean = lvalue.real > rvalue.real;
+      value.boolean = VALUE(lvalue.type->typ, lvalue) > VALUE(rvalue.type->typ, rvalue);
       break;
     case TYPE_POINTER:
     case TYPE_ARRAY:
       value.boolean = lvalue.pointer > rvalue.pointer;
       break;
     }
+    std::cout << "value.boolean" << value.boolean << std::endl;
     value.type = new TypeObject(TYPE_BOOL);
     break;
   }
@@ -1016,28 +1013,40 @@ Value Runtime::evaluate(ParseTree *tree)
     {
     case TYPE_INT:
     {
+      if (rvalue.type->typ != TYPE_FLOAT && rvalue.type->typ != TYPE_INT)
+        throw "Type error";
       int *addr = (int *)lvalue.address;
-      *addr = rvalue.integer;
-      lvalue.ste->history.addEntry(lvalue.line, rvalue.integer);
+      *addr = rvalue.type->typ == TYPE_FLOAT ? (int)rvalue.real : rvalue.integer;
+      // *addr = rvalue.integer;
+      lvalue.ste->history.addEntry(lvalue.line, *addr);
       lvalue.ste->setAssigned(true);
       break;
     }
     case TYPE_FLOAT:
     {
+      if (rvalue.type->typ != TYPE_FLOAT && rvalue.type->typ != TYPE_INT)
+        throw "Type error";
       float *addr = (float *)lvalue.address;
-      *addr = rvalue.real;
-      lvalue.ste->history.addEntry(lvalue.line, rvalue.real);
+      *addr = rvalue.type->typ == TYPE_FLOAT ? rvalue.real : (float)rvalue.integer;
+      lvalue.ste->history.addEntry(lvalue.line, *addr);
       lvalue.ste->setAssigned(true);
       break;
     }
     case TYPE_POINTER:
     case TYPE_ARRAY:
     {
+      if (rvalue.type->typ != TYPE_POINTER && rvalue.type->typ != TYPE_ARRAY)
+        throw "Type error";
       void **addr = (void **)lvalue.address;
       *addr = rvalue.pointer;
-      lvalue.ste->history.addEntry(lvalue.line, rvalue.pointer);
+      lvalue.ste->history.addEntry(lvalue.line, *addr);
       lvalue.ste->setAssigned(true);
       break;
+    }
+    default:
+    {
+      std::cout << "lvalue type: " << lvalue.type->typ << std::endl;
+      throw "Type error";
     }
     }
     break;

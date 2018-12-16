@@ -6,6 +6,9 @@
 #include "CallStack.hpp"
 #include "Value.hpp"
 
+#define VALUE(T, V) \
+  ((T) != TYPE_BOOL ? ((T) != TYPE_INT ? (V).real : (V).integer) : (V).boolean)
+
 class Runtime
 {
 private:
