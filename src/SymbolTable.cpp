@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "SymbolTable.hpp"
 
 SymbolTable::SymbolTable()
@@ -39,6 +41,7 @@ void SymbolTable::addNewSymbol(std::string name, TypeObject vType, void *address
 
 void SymbolTable::newLevel()
 {
+  std::cout << "SymbolTable : new level : " << this->level + 1 << std::endl;
   this->level += 1;
 }
 
@@ -49,6 +52,8 @@ void SymbolTable::newProcedure()
 
 void SymbolTable::deleteLevel()
 {
+  std::cout << "SymbolTable : delete level : " << this->level << std::endl;
+
   int currentLevel = this->level;
   int currentProcedure = this->procedure;
 

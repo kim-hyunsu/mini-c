@@ -356,7 +356,43 @@ ParseTree *Runtime::nextStatement(ParseTree *crnt)
 {
   auto parent = crnt->parent;
   auto sibling = crnt->nextSibling;
-
+  
+  if (parent == nullptr) {
+    std::cout << "nextStatement called from root! something is very wrong." << std::endl;
+  }
+  else {
+    auto ptag = parent->tag;
+    switch (ptag) {
+      case NONTERMINAL: {
+        std::string pname = parent->wordData;
+        if (pname == "statements") {
+          if (sibling != nullptr) {
+            return sibling;
+          }
+          else {
+            this->symbolTable.deleteLevel();
+            return nextStatement(parent);
+          }
+        }
+      }
+      case IF: {
+        if (crnt == parent->children[1]) {
+          // this is then block's end
+          if (parent->children.size() == 3) {
+            // return else block
+            return sibling;
+          }
+          else {
+            return nextStatement(parent);
+          }
+        }
+        else {
+          // this is else block's end
+          return nextStatement(parent);
+        }
+      }
+    }
+  }
   if (sibling != nullptr)
   {
     return sibling;

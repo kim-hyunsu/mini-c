@@ -24,7 +24,8 @@ public:
   string print(string var);
   vector<string> trace(string var);
 
-  static ParseTree* nextStatement(ParseTree *crnt);
+  ParseTree* nextStatement(ParseTree *crnt);
+
   Value evaluate(ParseTree *tree);
 };
 
