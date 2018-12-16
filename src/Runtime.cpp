@@ -660,24 +660,43 @@ Value Runtime::evaluate(ParseTree *tree)
   }
   case '*':
   {
-    std::cout << "+" << std::endl;
-    Value lvalue = this->evaluate(tree->children[0]);
-    Value rvalue = this->evaluate(tree->children[1]);
-    if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
+    if (tree->children.size() == 2)
     {
-      value.integer = lvalue.integer * rvalue.integer;
-      value.type = TYPE_INT;
+      std::cout << "*(times)" << std::endl;
+      Value lvalue = this->evaluate(tree->children[0]);
+      Value rvalue = this->evaluate(tree->children[1]);
+      if (lvalue.type == TYPE_INT && rvalue.type == TYPE_INT)
+      {
+        value.integer = lvalue.integer * rvalue.integer;
+        value.type = TYPE_INT;
+      }
+      else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+      {
+        float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
+        float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
+        value.real = firstTerm * secondTerm;
+        value.type = TYPE_FLOAT;
+      }
+      else
+      {
+        throw "type error";
+      }
     }
-    else if (lvalue.type == TYPE_FLOAT || rvalue.type == TYPE_FLOAT)
+    else if (tree->children.size() == 1)
     {
-      float firstTerm = lvalue.type == TYPE_INT ? (float)lvalue.integer : lvalue.real;
-      float secondTerm = rvalue.type == TYPE_INT ? (float)rvalue.integer : rvalue.real;
-      value.real = firstTerm * secondTerm;
-      value.type = TYPE_FLOAT;
+      std::cout << "*(pointer)" << std::endl;
+      Value rvalue = this->evaluate(tree->children[0]);
+      if (rvalue.type != TYPE_POINTER)
+      {
+        throw "Type error";
+      }
+      value.type = TYPE_INT;
+      value.integer = *(int *)rvalue.pointer;
+      break;
     }
     else
     {
-      throw "type error";
+      throw "Type error";
     }
     break;
   }
@@ -869,6 +888,7 @@ Value Runtime::evaluate(ParseTree *tree)
         throw "Type error";
       }
     }
+    throw "Type error";
   }
   }
   return value;
