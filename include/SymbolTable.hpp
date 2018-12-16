@@ -20,7 +20,7 @@ public:
   int lookup(std::string name);
   void addNewSymbol(std::string name, TypeObject vType, void *address);
   void newLevel();
-  void deleteLevel();
+  bool deleteLevel();
   void newProcedure();
   void deleteProcedure(int lvl);
   SymbolTableEntry *get(int index);

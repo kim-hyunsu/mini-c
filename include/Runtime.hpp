@@ -21,6 +21,7 @@ private:
   bool functionCall = false;
   bool returned = false;
   Value returnValue;
+  bool end = false;
 
 public:
   Runtime(ParseTree *root);

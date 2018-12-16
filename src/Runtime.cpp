@@ -119,6 +119,7 @@ bool Runtime::findMain()
 bool Runtime::next(int lines)
 {
   bool end = false;
+  if (this->end == true) return this->end;
   try
   {
     for (int i = 0; i < lines; i++)
@@ -130,6 +131,7 @@ bool Runtime::next(int lines)
   {
     std::cout << "ERROR!" << std::endl;
   }
+  if (end == true) this->end = true;
   return end;
 }
 
@@ -305,9 +307,9 @@ bool Runtime::runLine()
     }
 
     auto nxt = nextStatement(this->currentNode);
-    if (nxt == nullptr)
+    if (nxt == this->currentNode)
     {
-      // TODO: should return
+      return true;
     }
     else
     {
@@ -346,9 +348,9 @@ bool Runtime::runLine()
     else
     {
       auto nxt = nextStatement(this->currentNode);
-      if (nxt == nullptr)
+      if (nxt == this->currentNode)
       {
-        // TODO: should return
+        return true;
       }
       else
       {
@@ -390,35 +392,50 @@ bool Runtime::runLine()
   }
   else if (tag == RETURN)
   {
-    auto expr = children[0];
-    Value returnVal = this->evaluate(expr);
-    if (functionCall == true) return false;
-    auto function = this->currentNode;
+    if (children.size() == 1) {
+      auto expr = children[0];
+      Value returnVal = this->evaluate(expr);
+      if (functionCall == true) return false;
+      auto function = this->currentNode;
 
-    // find returnType
-    while (!(function->tag == NONTERMINAL && function->wordData == "procedure")) {
-      function = function->parent;
-    }
-    auto functionName = function->children[1]->wordData;
-    int index = this->symbolTable.lookup(functionName);
-    auto ste = this->symbolTable.get(index);
-    auto returnType = ste->getType()->returnType;
-    if (!isSameType(returnType, returnVal.type)) {
-      if (returnType->typ == TYPE_FLOAT && returnVal.type->typ == TYPE_INT) {
-        returnVal.type->typ = TYPE_FLOAT;
-        returnVal.real = (float)returnVal.integer;
+      // find returnType
+      while (!(function->tag == NONTERMINAL && function->wordData == "procedure")) {
+        function = function->parent;
       }
-      else {
-        std::cout << "return type does not match" << std::endl;
-        throw "type error";
+      auto functionName = function->children[1]->wordData;
+      int index = this->symbolTable.lookup(functionName);
+      auto ste = this->symbolTable.get(index);
+      auto returnType = ste->getType()->returnType;
+      if (!isSameType(returnType, returnVal.type)) {
+        if (returnType->typ == TYPE_FLOAT && returnVal.type->typ == TYPE_INT) {
+          returnVal.type->typ = TYPE_FLOAT;
+          returnVal.real = (float)returnVal.integer;
+        }
+        else {
+          std::cout << "return type does not match" << std::endl;
+          throw "type error";
+        }
       }
-    }
 
-    this->returnValue = returnVal;
-    this->returned = true;
-    auto returnInfo = this->callStack.deleteEntry();
-    this->currentNode = returnInfo.first;
-    this->symbolTable.deleteProcedure(returnInfo.second);
+      this->returnValue = returnVal;
+      this->returned = true;
+      auto returnInfo = this->callStack.deleteEntry();
+      this->currentNode = returnInfo.first;
+      this->symbolTable.deleteProcedure(returnInfo.second);
+    }
+    else {
+      // return nothing
+      auto expr = children[0];
+      Value returnVal = this->evaluate(expr);
+      if (functionCall == true) return false;
+      auto function = this->currentNode;
+      
+      this->returnValue = Value();
+      this->returned = true;
+      auto returnInfo = this->callStack.deleteEntry();
+      this->currentNode = returnInfo.first;
+      this->symbolTable.deleteProcedure(returnInfo.second);
+    }
   }
 
   else if (tag == PRINTF)
@@ -438,9 +455,9 @@ bool Runtime::runLine()
     }
 
     auto nxt = nextStatement(this->currentNode);
-    if (nxt == nullptr)
+    if (nxt == this->currentNode)
     {
-      // TODO: should return
+      return true;
     }
     else
     {
@@ -459,9 +476,9 @@ bool Runtime::runLine()
     this->evaluate(currentNode);
     if (functionCall == true) return false;
     auto nxt = nextStatement(this->currentNode);
-    if (nxt == nullptr)
+    if (nxt == this->currentNode)
     {
-      // TODO: should return
+      return true;
     }
     else
     {
@@ -486,6 +503,7 @@ ParseTree *Runtime::nextStatement(ParseTree *crnt)
   if (parent == nullptr)
   {
     std::cout << "nextStatement called from root! something is very wrong." << std::endl;
+    return crnt;
   }
   else
   {
@@ -503,7 +521,12 @@ ParseTree *Runtime::nextStatement(ParseTree *crnt)
         }
         else
         {
-          this->symbolTable.deleteLevel();
+          bool dLevel = this->symbolTable.deleteLevel();
+          if (dLevel == true) {
+            this->end = true;
+            return crnt;
+          }
+
           return nextStatement(parent);
         }
       }
@@ -1171,6 +1194,9 @@ Value Runtime::evaluate(ParseTree *tree)
         std::cout << "function not found" << std::endl;
         throw "";
       }
+      // put current node into call stack
+      this->callStack.addEntry(std::pair<ParseTree*, int>(this->currentNode, this->symbolTable.currentLevel()));
+
       auto functionEntry = this->symbolTable.get(funcIndex);
       auto funcParameterTypes = functionEntry->getType()->parameterTypes;
       auto function = (ParseTree*)(functionEntry->variableAddress);
@@ -1250,8 +1276,7 @@ Value Runtime::evaluate(ParseTree *tree)
       }
       std::cout << "function call : " << funcTree->wordData << " : " << argVals.size() << " parameters allocated." << std::endl;
 
-      // put current node into call stack
-      this->callStack.addEntry(std::pair<ParseTree*, int>(this->currentNode, this->symbolTable.currentLevel()));
+
       this->functionCall = true;
       this->currentNode = (function->children[3]);
       std::cout << "function call : " << funcTree->wordData<< ", jump to " << this->currentNode << std::endl;

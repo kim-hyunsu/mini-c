@@ -53,13 +53,17 @@ void SymbolTable::newProcedure()
   this->procedure += 1;
 }
 
-void SymbolTable::deleteLevel()
+bool SymbolTable::deleteLevel()
 {
-  std::cout << "SymbolTable : delete level : " << this->level << std::endl;
+  std::cout << "SymbolTable : delete level, procedure : " << this->level << this->procedure << std::endl;
 
   int currentLevel = this->level;
   int currentProcedure = this->procedure;
 
+  if (currentLevel == 1 && currentProcedure == 0) {
+    // main is closing
+    return true;
+  }
   for (std::vector<SymbolTableEntry>::reverse_iterator it = this->table.rbegin(); it != this->table.rend(); it++)
   {
     int entryLevel = (*it).getLevel();
@@ -75,6 +79,7 @@ void SymbolTable::deleteLevel()
     }
   }
   this->level -= 1;
+  return false;
 }
 
 void SymbolTable::deleteProcedure(int lvl)
