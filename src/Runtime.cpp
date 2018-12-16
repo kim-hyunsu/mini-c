@@ -301,6 +301,22 @@ bool Runtime::runLine()
     auto cond = children[1];
     auto after = children[2];
     auto stmt = children[3];
+
+    if (!forBlockEnd) {
+      Value initVal = this->evaluate(init);
+    }
+    else {
+      Value afterVal = this->evaluate(after);
+      forBlockEnd = false;
+    }
+    Value condVal = this->evaluate(cond);
+
+    if (condVal.boolean) {
+      this->currentNode = stmt;
+    }
+    else {
+      this->currentNode = nextStatement(this->currentNode);
+    }
   }
   else if (tag == RETURN)
   {
@@ -390,6 +406,10 @@ ParseTree *Runtime::nextStatement(ParseTree *crnt)
           // this is else block's end
           return nextStatement(parent);
         }
+      }
+      case FOR: {
+        this->forBlockEnd = true;
+        return parent;
       }
     }
   }

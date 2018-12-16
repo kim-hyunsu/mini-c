@@ -14,6 +14,7 @@ private:
   CallStack callStack;
   int nextLine;
   ParseTree *currentNode;
+  bool forBlockEnd = false;   // true only immediately after in-loop block ends
 
 public:
   Runtime(ParseTree *root);
