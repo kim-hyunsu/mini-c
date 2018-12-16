@@ -9,6 +9,10 @@ public:
   int integer;
   float real;
   void *pointer;
+  // for assignment
+  void *address;
+  int line;
+  SymbolTableEntry *ste;
   TypeObject *type;
 };
 
