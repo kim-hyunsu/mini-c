@@ -1023,7 +1023,6 @@ Value Runtime::evaluate(ParseTree *tree)
     }
     }
     break;
-    *(int*)(0x0) = 7;
   }
   default:
   {
@@ -1032,6 +1031,8 @@ Value Runtime::evaluate(ParseTree *tree)
       std::cout << "[]" << std::endl;
       Value lvalue = this->evaluate(tree->children[0]);
       Value rvalue = this->evaluate(tree->children[1]);
+      std::cout << "lvalue type : " << lvalue.type->typ << std::endl;
+      std::cout << "lvalue basetype : " << lvalue.type->baseType->typ << std::endl;
       if (rvalue.type->typ != TYPE_INT)
         throw "Type error";
       // if (lvalue.type->typ != TYPE_ARRAY)
@@ -1042,17 +1043,17 @@ Value Runtime::evaluate(ParseTree *tree)
       switch (value.type->typ)
       {
       case TYPE_INT:
-        value.integer = ((int *)lvalue.ste->variableAddress)[rvalue.integer];
-        value.address = &((int *)lvalue.ste->variableAddress)[rvalue.integer];
+        value.integer = *((int*)lvalue.pointer + rvalue.integer);
+        value.address = ((int*)lvalue.pointer + rvalue.integer);
         break;
       case TYPE_FLOAT:
-        value.real = ((float *)lvalue.ste->variableAddress)[rvalue.integer];
-        value.address = &((float *)lvalue.ste->variableAddress)[rvalue.integer];
+        value.real = *((float *)lvalue.pointer + rvalue.integer);
+        value.address = ((float *)lvalue.pointer + rvalue.integer);;
         break;
       case TYPE_POINTER:
       case TYPE_ARRAY:
-        value.pointer = ((void **)lvalue.ste->variableAddress)[rvalue.integer];
-        value.address = &((void **)lvalue.ste->variableAddress)[rvalue.integer];
+        value.pointer = *((void **)lvalue.pointer + rvalue.integer);
+        value.address = ((void **)lvalue.pointer + rvalue.integer);
         break;
       default:
         throw "Type error";
