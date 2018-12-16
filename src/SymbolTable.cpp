@@ -98,15 +98,14 @@ void SymbolTable::deleteProcedure()
   // need to set this->level after cleaning up the call stack
 }
 
-SymbolTableEntry SymbolTable::get(int index)
+SymbolTableEntry *SymbolTable::get(int index)
 {
-  return this->table[index];
+  return &this->table[index];
 }
 
 void SymbolTable::set(int index, Value value, int line)
 {
   SymbolTableEntry *ste = &(this->table[index]);
-  std::cout << "SET rvalue type: " << value.type->typ << std::endl;
   if (!isSameType(ste->getType(), value.type))
     throw "Type error";
   switch (value.type->typ)

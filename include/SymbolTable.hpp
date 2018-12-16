@@ -23,7 +23,7 @@ public:
   void deleteLevel();
   void newProcedure();
   void deleteProcedure();
-  SymbolTableEntry get(int index);
+  SymbolTableEntry *get(int index);
   void set(int index, Value value, int line);
   void setArrayEntry(int index, int arrayIndex, Value value, int line);
 };
