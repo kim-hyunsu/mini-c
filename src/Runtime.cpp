@@ -476,6 +476,7 @@ bool Runtime::runLine()
       switch (*++p) 
       {
          case 'd':
+         case 'i':
             v = this->evaluate(children[1]->children[i]);
             if (functionCall == true)
               return false;
@@ -484,7 +485,35 @@ bool Runtime::runLine()
             printf("%d", v.integer);
             i++;
             break;
+        case 'o':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_INT && v.type->typ != TYPE_BOOL)
+              throw "type error";
+            printf("%o", v.integer);
+            i++;
+            break;
+        case 'x':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_INT && v.type->typ != TYPE_BOOL)
+              throw "type error";
+            printf("%x", v.integer);
+            i++;
+            break;
+        case 'X':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_INT && v.type->typ != TYPE_BOOL)
+              throw "type error";
+            printf("%X", v.integer);
+            i++;
+            break;
         case 'f':
+        case 'F':
             v = this->evaluate(children[1]->children[i]);
             if (functionCall == true)
               return false;
@@ -492,6 +521,50 @@ bool Runtime::runLine()
               throw "type error";
             printf("%f", v.real);
             i++;
+            break;
+        case 'e':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_FLOAT)
+              throw "type error";
+            printf("%e", v.real);
+            i++;
+            break;
+        case 'E':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_FLOAT)
+              throw "type error";
+            printf("%E", v.real);
+            i++;
+            break;
+        case 'a':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_FLOAT)
+              throw "type error";
+            printf("%a", v.real);
+        case 'A':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_FLOAT)
+              throw "type error";
+            printf("%A", v.real);
+        case 'p':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_POINTER)
+              throw "type error";
+            printf("%p", v.pointer);
+            i++;
+            break;
+        case '%':
+            printf("%%");
             break;
         default:
             putchar(*p);

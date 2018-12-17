@@ -2,9 +2,9 @@
 ## Members
 |  이름  |   학번   |                                                기여                                                | 기여도 |
 |:------:|:--------:|:--------------------------------------------------------------------------------------------------:|:------:|
-| 서한솔 | 20140285 | 자료구조(콜스택, 히스토리, 심볼테이블 등) 구현, 파서 구현, Control flow 인터프리팅 구현, 중간 발표 |  55%   |
-| 김현수 | 20140168 | Prompt 인터페이스 구현, AST 인터프리팅 구현, print/trace 로직 구현                                 | 40%    |
-| 백대현 | 20183269 | 스캐너(Lexer.cpp) 구현과 중간발표 후 연락 부재                                                     | 5%     |
+| 서한솔 | 20140285 | 자료구조(콜스택, 히스토리, 심볼테이블 등) 구현, 파서 구현, Control flow 인터프리팅 구현, 중간 발표 |  52%   |
+| 김현수 | 20140168 | Prompt 인터페이스 구현, AST 인터프리팅 구현, print/trace 로직 구현                                 | 38%    |
+| 백대현 | 20183269 | 스캐너(Lexer.cpp) 구현, Pointer 선언, Address operator 구현, printf 구현, 중간발표           | 10%     |
 ## Execution and Test
 ```powershell
 > .\bin\minic.exe .\example1.c
@@ -40,7 +40,7 @@ make all # 첫 문장의 rm 명령어는 처음 빌드할 때 삭제해도 무�
 1. function call을 만나면 evaluation을 중단하고 가장 마지막에 계산한 값들을 각 parseTree에 저장한 뒤 현재 parseTree와 level을 callstack에 저장하고 해당 function으로 이동한다.
 1. 해당 function이 끝나면 callstack에서 pop하여 이어서 실행할 parseTree를 얻는다.
 1. 현재 parseTree를 다시 실행하고 만약 child tree에 이미 계산한 값(function call직전까지 계산한 값)이 있다면 그 값을 리턴하여 evaluation을 수행한다.
-1. printf를 만나면 첫번째 인수를 제외한 나머지를 evaluate하고 string literal인 첫번째 인수와 나머지 인수들을 그대로 c언어 함수인 printf에 넣는다.
+1. printf를 만나면 첫번째 인수를 제외한 나머지를 evaluate하고 string literal인 첫번째 인수와 나머지 인수들을 그대로 c언어 함수인 printf에 넣는다. 이외의 문자는 putchar로 출력.
 > recursive function을 완전히 지원하기 위해서는 parseTree에 계산이 덜 끝난 값을, function call한 프로시져마다 기억하여 저장해야한다. 하지만 시간 상의 이유로 1단계 전의 프로시져 값만 저장할 수 있다.
 ### Print command
 1. 우리는 symbol table을 관리하고 있기 때문에 어느 순간이든 현재 변수의 값을 알 수 있다.

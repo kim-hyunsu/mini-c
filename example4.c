@@ -20,4 +20,9 @@ int main(void) {
   printf("%f %f\n", reals[0], reals[1]);
   printf("%f %f %f\n", reals[0], reals[1], reals[2]);
   printf("%f %f %f %f\n", reals[0], reals[1], reals[2], reals[3]);
+
+  int a = 1;
+  int *aptr = &a;
+  printf("%p\n", aptr);
+  printf("%d\n", *aptr);
 }
