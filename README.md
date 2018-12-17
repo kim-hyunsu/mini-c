@@ -51,5 +51,3 @@ make all # 첫 문장의 rm 명령어는 처음 빌드할 때 삭제해도 무�
 1. trace의 인자로 들어온 string에 해당하는 symbolTable entry를 찾고 해당 entry에 들어있는 histroy table을 탐색하여 값을 리턴해 준다.
 > 마찬가지로 우리의 프로그램은 Array의 history는 출력하지만 Array element의 history를 출력하지 못한다. print와 마찬가지 방법으로 해결할 수 있다.
 
-### TODO
-Pointer & Address 연산 '*'과 '&' 구현 필요.
