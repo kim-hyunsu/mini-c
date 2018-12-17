@@ -156,10 +156,16 @@ statement
     {$$ = $1;}
   ;
 
+expressions
+  : expressions ',' expression
+    {$1->addChild($3); $$ = $1;}
+  | expression
+    {auto pt=new ParseTree($1); pt->tag=NONTERMINAL; pt->wordData="expressions"; $$=pt;}
+
 printf_statement
   : PRINTF '(' PRINTFARG ')' ';'
     {$1->addChild($3);}
-  | PRINTF '(' PRINTFARG ',' expression ')' ';'
+  | PRINTF '(' PRINTFARG ',' expressions ')' ';'
     {$1->addChild($3); $1->addChild($5); $$=$1;}
   ;
 

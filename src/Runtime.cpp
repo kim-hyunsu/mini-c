@@ -2,6 +2,8 @@
 #include "../y.tab.h"
 #include <iostream>
 #include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 
 static SymbolTableEntry *getSymbolTableEntry(SymbolTable *symbolTable, std::string name);
 
@@ -439,6 +441,7 @@ bool Runtime::runLine()
   else if (tag == PRINTF)
   {
     auto arg = children[0];
+    /*
     if (children.size() == 1)
     {
       printf(arg->wordData.c_str());
@@ -451,6 +454,45 @@ bool Runtime::runLine()
       if (functionCall == true)
         return false;
       printf(arg->wordData.c_str(), v.integer);
+    }
+    */
+    int size = children.size();
+    char *fmt = (char *)arg->wordData.c_str(), *p;
+    int i = 0;
+    Value v;
+    std::vector<ParseTree *> expr;
+
+    for(p = fmt; *p; p++)
+    {
+      if (*p != '%') 
+      {
+         putchar(*p);
+         continue;
+      }
+      switch (*++p) 
+      {
+         case 'd':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_INT && v.type->typ != TYPE_BOOL)
+              throw "type error";
+            printf("%d", v.integer);
+            i++;
+            break;
+        case 'f':
+            v = this->evaluate(children[1]->children[i]);
+            if (functionCall == true)
+              return false;
+            if(v.type->typ != TYPE_FLOAT)
+              throw "type error";
+            printf("%f", v.real);
+            i++;
+            break;
+        default:
+            putchar(*p);
+            break;
+      }
     }
 
     auto nxt = nextStatement(this->currentNode);
@@ -916,6 +958,26 @@ Value Runtime::evaluate(ParseTree *tree)
       default:
         throw "Type error";
       }
+    }
+    else
+    {
+      throw "Type error";
+    }
+    break;
+  }
+  case '&':
+  {
+    if (tree->children.size() == 1)
+    {
+      Value rvalue = this->evaluate(tree->children[0]);
+      if (functionCall == true)
+        return Value();
+
+      value.type->typ = TYPE_POINTER;
+      value.type->baseType = rvalue.type;
+      value.line = rvalue.line;
+      value.ste = rvalue.ste;
+      value.pointer = rvalue.address;
     }
     else
     {
