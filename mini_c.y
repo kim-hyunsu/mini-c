@@ -3,7 +3,6 @@
 #include "Lexer.hpp"
 #include "parser.hpp"
 #include "ParseTree.hpp"
-#define parse.error verbose
 
 extern ParseTree* root;
 
@@ -21,6 +20,7 @@ int yylex();
 %token NONTERMINAL
 
 %start start_symbol
+%define parse.error verbose
 %%
 
 start_symbol
@@ -233,6 +233,8 @@ unary_expr
   : postfix_expr
     {$$ = $1;}
   | '*' unary_expr
+    {$1->addChild($2); $$=$1;}
+  | '&' unary_expr
     {$1->addChild($2); $$=$1;}
   | INC unary_expr
     {$1->addChild($2); $$=$1;}

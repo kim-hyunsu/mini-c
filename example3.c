@@ -14,6 +14,7 @@ int main(void) {
  float average;
  count = 4;
  sum = 0;
+ int *sumptr = &sum;
  for (i = 0; i < count; i++) {
  mark[i] = i * 30;
  sum = sum + mark[i];
