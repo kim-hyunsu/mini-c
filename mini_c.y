@@ -3,6 +3,7 @@
 #include "Lexer.hpp"
 #include "parser.hpp"
 #include "ParseTree.hpp"
+#define parse.error verbose
 
 extern ParseTree* root;
 

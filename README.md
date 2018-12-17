@@ -10,6 +10,14 @@
 > .\bin\minic.exe .\example1.c
 > .\bin\minic.exe .\example2.c
 > .\bin\minic.exe .\example3.c
+반드시 테스트용 C 파일의 newline은 LF형식이어야 함. Windows는 기본으로 CRLF형식이므로 LF 형식으로 변환 후 저장된 파일을 읽어야 한다.
+```
+```Linux bash with GCC-7 & Bison
+make all # 첫 문장의 rm 명령어는 처음 빌드할 때 삭제해도 무방. 컴파일이 안되면 삭제 후 재시도.
+> .\bin\minic .\example1.c
+> .\bin\minic .\example2.c
+> .\bin\minic .\example3.c
+마찬가지로 테스트용 C 파일은 LF 형식으로 저장해야 함.
 ```
 ## Data Structures
 | 자료구조     | 설명                                                                                                    | 예시           |
