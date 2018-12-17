@@ -189,6 +189,8 @@ bool Runtime::runLine()
           newType->baseType = varType;
           varType = newType;
         }
+        if(ptr != lch)
+          lch->wordData.assign(ptr->wordData);
         if (ptr->children.size() == 1)
         {
           // array
@@ -259,6 +261,8 @@ bool Runtime::runLine()
           newType->baseType = varType;
           varType = newType;
         }
+        if(ptr != ch)
+          ch->wordData.assign(ptr->wordData);
         if (ptr->children.size() == 1)
         {
           // array
@@ -972,8 +976,7 @@ Value Runtime::evaluate(ParseTree *tree)
       Value rvalue = this->evaluate(tree->children[0]);
       if (functionCall == true)
         return Value();
-
-      value.type->typ = TYPE_POINTER;
+      value.type = new TypeObject(TYPE_POINTER);
       value.type->baseType = rvalue.type;
       value.line = rvalue.line;
       value.ste = rvalue.ste;
